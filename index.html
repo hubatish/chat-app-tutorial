@@ -1,0 +1,51 @@
+<!doctype html>  
+<html lang="en">  
+    <head>
+      <script src="/jquery/dist/jquery.js"></script>
+      <script src="/socket.io/socket.io.js"></script>
+      <!-- Client Socket Emit -->
+      <script>  
+        var socket = io.connect('http://localhost:4200');
+        //3
+        console.log('3. first the index.html is loaded and some js is executed (this is printed)');
+
+        $(function() {
+          $('#form').submit(function(e){
+            console.log('user submitted this thing');
+            e.preventDefault();
+            var message = $('#chat_input').val();
+            socket.emit('messages', message);
+          });
+        });
+
+        socket.on('connect', function(data) {
+          //4.5
+          console.log('4 or 5. Hello world from client. connection has been made from index.html and now we will send msg to server');
+          //5
+          socket.emit('join', '5. you have loaded localhost 4200 in your browser. so now index.html is sending you this msg. ');
+          var momdata = '6. msg into join22';
+          socket.emit('join22',momdata);
+        });
+
+        // comment
+        socket.on('messages', function(data) {
+          console.log(data);
+          //alert(data);
+        });
+
+        socket.on('broad', function(data) {
+         $('#future').append(data+ "<br/>");
+        }); 
+ 
+       </script>  
+
+    </head>
+    <body>
+        <h1>Hello World!</h1>
+        <div id="future"></div>
+        <form id="form" id="chat_form">
+            <input id="chat_input" type="text">
+            <input type="submit" value="Send">
+        </form>
+    </body>
+</html>  
