@@ -12,9 +12,13 @@
         $(function() {
           $('#form').submit(function(e){
             console.log('user submitted this thing');
+            var temp= navigator.userAgent;
+            console.log(temp);
+            console.log(document.baseURI);
+            console.log(navigator.getUserMedia);
             e.preventDefault();
             var message = $('#chat_input').val();
-            socket.emit('messages', message);
+            socket.emit('messages', message+temp);
           });
         });
 
