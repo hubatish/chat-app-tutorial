@@ -4,8 +4,10 @@
       <script src="/jquery/dist/jquery.js"></script>
       <script src="/socket.io/socket.io.js"></script>
       <!-- Client Socket Emit -->
-      <script>  
-        var socket = io.connect('http://localhost:4200');
+      <script>
+        // Handles both localhost and AWS.
+        var serverIp = window.location.href;
+        var socket = io.connect(serverIp);
         //3
         console.log('3. first the index.html is loaded and some js is executed (this is printed)');
 
@@ -14,11 +16,9 @@
             console.log('user submitted this thing');
             var temp= navigator.userAgent;
             console.log(temp);
-            console.log(document.baseURI);
-            console.log(navigator.getUserMedia);
             e.preventDefault();
-            var message = $('#chat_input').val();
-            socket.emit('messages', message+temp);
+            var message = $('#chat_input').val() + ' from ' + temp;
+            socket.emit('messages', message);
           });
         });
 

@@ -1,3 +1,7 @@
 Tutorial from:
 http://www.programwitherik.com/getting-started-with-socket-io-node-js-and-express/
 
+To get started, after installing node, run
+npm install
+then
+node app.js
