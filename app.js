@@ -102,6 +102,22 @@ io.on('connection', function(client) {
     }
   });
 
+  function findPlayerByName(name) {
+    for (const [id, player] of playersForIds) {
+      if (name == player.name) {
+        return player;
+      }
+    }
+    return {};
+  }
+  client.on('viewRole', (data) => {
+    const player = findPlayerByName(data.name);
+    if (!player.role) {
+      console.log('no player found with name '+data.name);
+    }
+    client.emit('tellRole', player);
+  });
+
   client.on('disconnect', (reason) => {
     playersForIds.delete(client.id);
   });

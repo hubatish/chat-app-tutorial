@@ -78,14 +78,24 @@
             $('#player_list').append(innerHtml);
             if (shouldShowSeer) {
               $('#seer_'+name).click((name) => {
-                console.log('seer clicked on'+name);
+                console.log('seer clicked on' + name);
+                socket.emit('viewRole', {name});
                 shouldShowSeer = false;
+                setPlayerNamesList(allPlayersNames);
               });
             }
           }
         }
         socket.on('allPlayersNames', (names) => {
           setPlayerNamesList(names);
+        });
+
+        socket.on('tellRole', (player) => {
+          if (role == Role.Seer) {
+            $('#seer_start').hide();
+            $('#seer_reveal').show();
+            $('#seer_reveal').text('Player ' + player.name + ' has role ' + player.role);
+          }
         });
 
         socket.on('startGame', (data) => {
@@ -104,6 +114,7 @@
               break;
             case Role.Seer:
               $('#seer_root').show();
+              $('#seer_start').show();
               shouldShowSeer = true;
               setPlayerNamesList(allPlayersNames);
               break;
@@ -141,7 +152,8 @@
           <p>The villager has no special abilities. Sorry! Talk it out.</p>
         </div>
         <div hidden id="seer_root">
-          <p>Click one of the players below to see their role.</p>
+          <p id="seer_start">Click one of the players below to see their role.</p>
+          <p hidden id="seer_reveal"></p>
         </div>
       </div>
       <div hidden id="player_list_root">
