@@ -75,7 +75,7 @@ io.on('connection', function(client) {
     });
     client.join(room);
     client.emit('clientJoin', {id});
-    client.emit('allPlayersNames', getPlayerNames());  
+    io.in(room).emit('allPlayersNames', getPlayerNames());
   });
 
   client.on('nameSet', function(data) {
