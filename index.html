@@ -12,6 +12,12 @@
         let id = '';
         let gameStarted = false;
 
+        const Role = {
+          Werewolf: 'Werewolf',
+          Villager: 'Villager',
+          Seer: 'Seer'
+        };
+
         $(function() {
           // document ready.
 
@@ -59,13 +65,11 @@
           }
         });
 
-        function startGame() {
+        socket.on('startGame', (data) => {
           gameStarted = true;
           $('#start_game_root').hide();
           $('#ability_root').show();
-        }
-        socket.on('startGame', (data) => {
-          startGame();
+          $('#role_text').text('Role: ' + data.role);
         });
        </script>
     </head>
@@ -89,7 +93,7 @@
         <ul id="player_list"></ul>
       </div>
       <div hidden id="ability_root">
-        Use your ability.
+        <p id="role_text">Role: </p>
       </div>
     </body>
 </html>  

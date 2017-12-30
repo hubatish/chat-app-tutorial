@@ -13,14 +13,16 @@ app.get('/', function(req, res,next) {
 });
 
 // App logic.
-function guid() {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
+const Role = {
+  Werewolf: 'Werewolf',
+  Villager: 'Villager',
+  Seer: 'Seer',
+};
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }
 
 let playersForIds = new Map();
@@ -35,6 +37,26 @@ function getPlayerNames() {
   }
   return names;
 }
+
+function assignRoles() {
+  let maxWerewolves = playersForIds.length < 4 ? 1 : 2;
+  let numWerewolves = 0;
+  const extraCards = 3;
+  for (const [id, player] of playersForIds) {
+    if (numWerewolves < maxWerewolves &&
+        getRandomInt(0, playersForIds.length + extraCards) <= 2) {
+      playersForIds.get(id).role = Role.Werewolf; 
+      numWerewolves += 1;       
+    } else {
+      if (getRandomInt(0, playersForIds.length + extraCards) <= 2) {
+        playersForIds.get(id).role = Role.Seer;
+      } else {
+        playersForIds.get(id).role = Role.Villager;
+      }
+    }
+  }
+}
+
 let room = 'default';
 
 io.on('connection', function(client) {
@@ -52,7 +74,10 @@ io.on('connection', function(client) {
   });
 
   client.on('startGame', (data) => {
-    io.in(room).emit('startGame', {});
+    assignRoles();
+    for (const [id, player] of playersForIds) {
+      client.to(id).emit('startGame', {role: player.role});
+    }
   });
 
   client.on('disconnect', (reason) => {
