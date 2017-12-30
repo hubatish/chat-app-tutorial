@@ -39,16 +39,16 @@ function getPlayerNames() {
 }
 
 function assignRoles() {
-  let maxWerewolves = playersForIds.length < 4 ? 1 : 2;
+  let maxWerewolves = playersForIds.size < 4 ? 1 : 2;
   let numWerewolves = 0;
   const extraCards = 3;
   for (const [id, player] of playersForIds) {
     if (numWerewolves < maxWerewolves &&
-        getRandomInt(0, playersForIds.length + extraCards) <= 2) {
+        getRandomInt(0, playersForIds.size + extraCards) < 2) {
       playersForIds.get(id).role = Role.Werewolf; 
       numWerewolves += 1;       
     } else {
-      if (getRandomInt(0, playersForIds.length + extraCards) <= 2) {
+      if (getRandomInt(0, playersForIds.size + extraCards) < 2) {
         playersForIds.get(id).role = Role.Seer;
       } else {
         playersForIds.get(id).role = Role.Villager;
