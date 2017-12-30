@@ -100,7 +100,7 @@
           switch(role) {
             case Role.Werewolf:
               $('#werewolf_root').show();
-              setListEntries($('#werewolf_list'), data.werewolves);
+              setListEntries($('.werewolf_list'), data.werewolves);
               break;
             case Role.Seer:
               $('#seer_root').show();
@@ -134,7 +134,7 @@
       <div hidden id="ability_root">
         <p id="role_text">Role: </p>
         <div hidden id="werewolf_root">
-          <p>The other werewolves are:</p>
+          <p>The werewolves are:</p>
           <ul class="werewolf_list"></ul>
         </div>
         <div hidden id="villager_root">

@@ -102,7 +102,7 @@ io.on('connection', function(client) {
         default:
           break; 
       }
-      io.to(id).emit('startGame', {role: player.role});
+      io.to(id).emit('startGame', clientData);
     }
   });
 
