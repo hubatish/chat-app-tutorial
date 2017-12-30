@@ -30,9 +30,6 @@ function getPlayerNames() {
   const names = [];
   for (const [id, player] of playersForIds) {
     let name = player.name;
-    if (name == undefined) {
-      name = 'loading';
-    }
     names.push(name);
   }
   return names;
@@ -43,9 +40,6 @@ function getWerewolfNames() {
   for (const [id, player] of playersForIds) {
     if (player.role == Role.Werewolf) {
       let name = player.name;
-      if (name == undefined) {
-        name = 'loading';
-      }
       names.push(name);  
     }
   }
@@ -76,10 +70,12 @@ let room = 'default';
 io.on('connection', function(client) {
   client.on('join', function(data) {
     const id = client.id;
-    playersForIds.set(id, {});
+    playersForIds.set(id, {
+      name: 'load' + client.id.substr(0, 5),
+    });
     client.join(room);
     client.emit('clientJoin', {id});
-    client.emit('allPlayersNames', getPlayerNames());    
+    client.emit('allPlayersNames', getPlayerNames());  
   });
 
   client.on('nameSet', function(data) {
