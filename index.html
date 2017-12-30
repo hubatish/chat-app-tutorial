@@ -6,24 +6,26 @@
       <script src="http://2a336fd6.ngrok.io/vorlon.js"></script>
       <!-- Client Socket Emit -->
       <script>
+        // Can't use nice things like let, const, {name} cause iOs Safari..
+
         // Handles both localhost and AWS.
         var serverIp = window.location.href;
         var socket = io.connect(serverIp);
 
-        let id = '';
-        let gameStarted = false;
-        const Role = {
+        var id = '';
+        var gameStarted = false;
+        var Role = {
           Werewolf: 'Werewolf',
           Villager: 'Villager',
           Seer: 'Seer'
         };
-        let role = Role.Villager;
-        let allPlayersNames = [];
-        let shouldShowSeer = false;
+        var role = Role.Villager;
+        var allPlayersNames = [];
+        var shouldShowSeer = false;
 
         function setListEntries(list_root, names) {
           list_root.empty();
-          for (const name of names) {
+          for (var name of names) {
             list_root.append("<li>"+name+"</li>");
           }
         }
@@ -35,7 +37,7 @@
           $('#name_form').submit(function(e){
             e.preventDefault();
             var name = $('#name_input').val();
-            socket.emit('nameSet', {name});
+            socket.emit('nameSet', {name: name});
             $("#name_form").hide();
             $("#name_change_btn").text("Change name from " + name);
             $("#name_change_btn").show();
@@ -43,12 +45,12 @@
               $("#start_game_root").show();
             }
           });
-          $("#name_change_btn").click(() => {
+          $("#name_change_btn").click(function() {
             $("#name_form").show();
             $("#name_change_btn").hide();
           });
 
-          $('#start_game_btn').click(() => {
+          $('#start_game_btn').click(function() {
             socket.emit('startGame', {});
             $('#start_game_root').hide();
           });
@@ -70,8 +72,8 @@
         function setPlayerNamesList(names) {
           allPlayersNames = names;
           $('#player_list').empty();
-          for (const name of names) {
-            let innerHtml = '<li>' + name;
+          for (var name of names) {
+            var innerHtml = '<li>' + name;
             if (shouldShowSeer) {
               innerHtml += '<button id="seer_'+name+'">View Role</button>';
             }
