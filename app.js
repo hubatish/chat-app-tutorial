@@ -23,19 +23,36 @@ function guid() {
     s4() + '-' + s4() + s4() + s4();
 }
 
-let playersForIds = {};
+let playersForIds = new Map();
+function getPlayerNames() {
+  const names = [];
+  for ([id, player] of playersForIds) {
+    let name = player.name;
+    if (name == undefined) {
+      name = 'loading';
+    }
+    names.push(name);
+  }
+  return names;
+}
+let room = 'default';
 
 io.on('connection', function(client) {
+  client.join(room);
+
   client.on('join', function(data) {
     const id = guid();
-    playersForIds[id] = {};
+    playersForIds.set(id, {});
+    console.log('player ids joined' + id + ", " + JSON.stringify(playersForIds));
     client.emit('clientJoin', {id});
   });
 
   client.on('nameSet', function(data) {
-    playersForIds[data.id].name = data.name;
-    //client.emit('broad', data);
-    //client.broadcast.emit('broad',data);
+    console.log(data);
+    console.log('setting name: ' + JSON.stringify(playersForIds));
+    playersForIds.get(data.id).name = data.name;
+    console.log(playersForIds.get(data.id));
+    client.to(room).emit('allPlayersNames', getPlayerNames());
   });
 });
 

@@ -18,6 +18,8 @@
           $('#name_form').submit(function(e){
             e.preventDefault();
             var name = $('#name_input').val();
+            console.log('id? ' + id);
+            console.log({id: id, name});
             socket.emit('nameSet', {id, name});
             $("#name_form").hide();
             $("#name_change_btn").text("Change name from " + name);
@@ -38,6 +40,10 @@
           // got back id - show the starting screen & hide loading.
           $("#name_change_root").show();
           $("#loading").hide();
+        });
+
+        socket.on('allPlayersNames', (names) => {
+          console.log(names);
         });
        </script>
     </head>
