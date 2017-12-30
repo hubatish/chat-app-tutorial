@@ -77,7 +77,7 @@
             innerHtml += '</li>';
             $('#player_list').append(innerHtml);
             if (shouldShowSeer) {
-              $('#seer_'+name).click((name) => {
+              $('#seer_'+name).click((unused) => {
                 console.log('seer clicked on' + name);
                 socket.emit('viewRole', {name});
                 shouldShowSeer = false;
