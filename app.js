@@ -76,7 +76,8 @@ io.on('connection', function(client) {
   client.on('startGame', (data) => {
     assignRoles();
     for (const [id, player] of playersForIds) {
-      client.to(id).emit('startGame', {role: player.role});
+      console.log('attempting to send' + id + ' to '+player.role);
+      io.to(id).emit('startGame', {role: player.role});
     }
   });
 

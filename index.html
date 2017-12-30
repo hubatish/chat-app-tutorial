@@ -66,6 +66,7 @@
         });
 
         socket.on('startGame', (data) => {
+          console.log('game started msg received' + data.role);
           gameStarted = true;
           $('#start_game_root').hide();
           $('#ability_root').show();
