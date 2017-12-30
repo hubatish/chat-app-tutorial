@@ -80,20 +80,20 @@
             innerHtml += '</li>';
             $('#player_list').append(innerHtml);
             if (shouldShowSeer) {
-              $('#seer_'+name).click((unused) => {
+              $('#seer_'+name).click(function(unused) {
                 console.log('seer clicked on' + name);
-                socket.emit('viewRole', {name});
+                socket.emit('viewRole', {name: name});
                 shouldShowSeer = false;
                 setPlayerNamesList(allPlayersNames);
               });
             }
           }
         }
-        socket.on('allPlayersNames', (names) => {
+        socket.on('allPlayersNames', function(names) {
           setPlayerNamesList(names);
         });
 
-        socket.on('tellRole', (player) => {
+        socket.on('tellRole', function(player) {
           if (role == Role.Seer) {
             $('#seer_start').hide();
             $('#seer_reveal').show();
@@ -101,7 +101,7 @@
           }
         });
 
-        socket.on('startGame', (data) => {
+        socket.on('startGame', function(data) {
           console.log('game started msg received' + data.role);
           gameStarted = true;
           role = data.role;
