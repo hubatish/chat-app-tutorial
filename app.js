@@ -7,19 +7,35 @@ var app = express();
 var server = http.createServer(app);  
 var io = socketIo(server);
 
-app.use(express.static(__dirname + '/node_modules'));  
-app.get('/', function(req, res,next) {  
+app.use(express.static(__dirname + '/node_modules'));
+app.get('/', function(req, res,next) {
   res.sendFile(__dirname + '/index.html');
 });
 
+// App logic.
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
+
+let playersForIds = {};
+
 io.on('connection', function(client) {
   client.on('join', function(data) {
-    client.emit('messages', '7. Hello from server - msg from app.js');
+    const id = guid();
+    playersForIds[id] = {};
+    client.emit('clientJoin', {id});
   });
 
-  client.on('messages', function(data) {
-    client.emit('broad', data);
-    client.broadcast.emit('broad',data);
+  client.on('nameSet', function(data) {
+    playersForIds[data.id].name = data.name;
+    //client.emit('broad', data);
+    //client.broadcast.emit('broad',data);
   });
 });
 

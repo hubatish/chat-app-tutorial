@@ -9,33 +9,49 @@
         var serverIp = window.location.href;
         var socket = io.connect(serverIp);
 
+        let id = '';
+
         $(function() {
-          $('#form').submit(function(e){
+          // document ready.
+
+          // Set up name changing.
+          $('#name_form').submit(function(e){
             e.preventDefault();
-            var message = $('#chat_input').val();
-            socket.emit('messages', message);
+            var name = $('#name_input').val();
+            socket.emit('nameSet', {id, name});
+            $("#name_form").hide();
+            $("#name_change_btn").text("Change name from " + name);
+            $("#name_change_btn").show();
+          });
+          $("#name_change_btn").click(() => {
+            $("#name_form").show();
+            $("#name_change_btn").hide();
           });
         });
 
         socket.on('connect', function(data) {
-          //4.5
-          console.log('4 or 5. Hello world from client. connection has been made from index.html and now we will send msg to server');
-          socket.emit('join', '5. you have loaded localhost 4200 in your browser. so now index.html is sending you this msg. ');
+          socket.emit('join', {});
         });
 
-        socket.on('broad', function(data) {
-          $('#future').append(data+ "<br/>");
-        }); 
- 
-       </script>  
-
+        socket.on('clientJoin', function(data) {
+          id = data.id;
+          // got back id - show the starting screen & hide loading.
+          $("#name_change_root").show();
+          $("#loading").hide();
+        });
+       </script>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <h1>Play Werewolf!</h1>
+        <p>After five minutes, vote to kill someone. The werewolves and minion win if a werewolf is not killed.</p>
         <div id="future"></div>
-        <form id="form" id="chat_form">
-            <input id="chat_input" type="text">
-            <input type="submit" value="Send">
-        </form>
+        <p id="loading">Loading..</p>
+        <div hidden id="name_change_root">
+          <form id="name_form">
+              <input id="name_input" type="text">
+              <input type="submit" value="Set Name">
+          </form>
+          <button hidden id="name_change_btn">Change your name.</button>
+        </div>
     </body>
 </html>  
