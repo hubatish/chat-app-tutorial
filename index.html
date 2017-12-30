@@ -18,6 +18,13 @@
         };
         let role = Role.Villager;
 
+        function setListEntries(list_root, names) {
+          list_root.empty();
+          for (const name of names) {
+            list_root.append("<li>"+name+"</li>");
+          }
+        }
+
         $(function() {
           // document ready.
 
@@ -59,10 +66,7 @@
 
         socket.on('allPlayersNames', (names) => {
           console.log(names);
-          $("#player_list").empty();
-          for (const name of names) {
-            $("#player_list").append("<p>"+name+"</p>");
-          }
+          setListEntries($('#player_list'), names);
         });
 
         socket.on('startGame', (data) => {
@@ -77,12 +81,15 @@
           switch(role) {
             case Role.Werewolf:
               $('#werewolf_root').show();
+              setListEntries($('#werewolf_list'), data.werewolves);
               break;
             case Role.Seer:
               $('#seer_root').show();
               break;
             case Role.Villager:
               $('#villager_root').show();
+              break;
+            default:
               break;
           }
         });

@@ -38,6 +38,20 @@ function getPlayerNames() {
   return names;
 }
 
+function getWerewolfNames() {
+  const names = [];
+  for (const [id, player] of playersForIds) {
+    if (player.role == Role.Werewolf) {
+      let name = player.name;
+      if (name == undefined) {
+        name = 'loading';
+      }
+      names.push(name);  
+    }
+  }
+  return names;  
+}
+
 function assignRoles() {
   let maxWerewolves = playersForIds.size < 4 ? 1 : 2;
   let numWerewolves = 0;
@@ -77,6 +91,17 @@ io.on('connection', function(client) {
     assignRoles();
     for (const [id, player] of playersForIds) {
       console.log('attempting to send' + id + ' to '+player.role);
+      // Send any extra info with data.
+      const clientData = {
+        role: player.role
+      };
+      switch(player.role) {
+        case Role.Werewolf:
+          clientData.werewolves = getWerewolfNames();
+          break;
+        default:
+          break; 
+      }
       io.to(id).emit('startGame', {role: player.role});
     }
   });
