@@ -10,6 +10,7 @@
         var socket = io.connect(serverIp);
 
         let id = '';
+        let gameStarted = false;
 
         $(function() {
           // document ready.
@@ -22,10 +23,18 @@
             $("#name_form").hide();
             $("#name_change_btn").text("Change name from " + name);
             $("#name_change_btn").show();
+            if (!gameStarted) {
+              $("#start_game_root").show();
+            }
           });
           $("#name_change_btn").click(() => {
             $("#name_form").show();
             $("#name_change_btn").hide();
+          });
+
+          $('#start_game_btn').click(() => {
+            socket.emit('startGame', {});
+            $('#start_game_root').hide();
           });
         });
 
@@ -49,21 +58,38 @@
             $("#player_list").append("<p>"+name+"</p>");
           }
         });
+
+        function startGame() {
+          gameStarted = true;
+          $('#start_game_root').hide();
+          $('#ability_root').show();
+        }
+        socket.on('startGame', (data) => {
+          startGame();
+        });
        </script>
     </head>
     <body>
-        <h1>Play Werewolf!</h1>
+      <h1>Play Werewolf!</h1>
+      <div hidden id="name_change_root">
+        <form id="name_form">
+          <input id="name_input" type="text">
+          <input type="submit" value="Set Name">
+        </form>
+        <button hidden id="name_change_btn">Change your name.</button>
+      </div>
+      <div hidden id="start_game_root">
         <p>After five minutes, vote to kill someone. The werewolves and minion win if a werewolf is not killed.</p>
-        <p id="loading">Loading..</p>
-        <div hidden id="name_change_root">
-          <form id="name_form">
-              <input id="name_input" type="text">
-              <input type="submit" value="Set Name">
-          </form>
-          <button hidden id="name_change_btn">Change your name.</button>
-        </div>
-        <div hidden id="player_list_root">
-          <ul id="player_list"></ul>
-        </div>
-      </body>
+        <button id="start_game_btn">Start Round</button>
+        <p>^ Press only when everyone is ready.</p>
+      </div>
+      <p id="loading">Loading..</p>
+      <div hidden id="player_list_root">
+        <p>Players</p>
+        <ul id="player_list"></ul>
+      </div>
+      <div hidden id="ability_root">
+        Use your ability.
+      </div>
+    </body>
 </html>  

@@ -43,11 +43,16 @@ io.on('connection', function(client) {
     playersForIds.set(id, {});
     client.join(room);
     client.emit('clientJoin', {id});
+    client.emit('allPlayersNames', getPlayerNames());    
   });
 
   client.on('nameSet', function(data) {
     playersForIds.get(client.id).name = data.name;
     io.in(room).emit('allPlayersNames', getPlayerNames());
+  });
+
+  client.on('startGame', (data) => {
+    io.in(room).emit('startGame', {});
   });
 
   client.on('disconnect', (reason) => {
