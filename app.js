@@ -26,7 +26,7 @@ function guid() {
 let playersForIds = new Map();
 function getPlayerNames() {
   const names = [];
-  for ([id, player] of playersForIds) {
+  for (const [id, player] of playersForIds) {
     let name = player.name;
     if (name == undefined) {
       name = 'loading';

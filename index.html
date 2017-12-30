@@ -35,20 +35,25 @@
 
         socket.on('clientJoin', function(data) {
           id = data.id;
+          // durrr don't really need id...
           // got back id - show the starting screen & hide loading.
           $("#name_change_root").show();
           $("#loading").hide();
+          $("#player_list_root").show();
         });
 
         socket.on('allPlayersNames', (names) => {
           console.log(names);
+          $("#player_list").empty();
+          for (const name of names) {
+            $("#player_list").append("<p>"+name+"</p>");
+          }
         });
        </script>
     </head>
     <body>
         <h1>Play Werewolf!</h1>
         <p>After five minutes, vote to kill someone. The werewolves and minion win if a werewolf is not killed.</p>
-        <div id="future"></div>
         <p id="loading">Loading..</p>
         <div hidden id="name_change_root">
           <form id="name_form">
@@ -57,5 +62,8 @@
           </form>
           <button hidden id="name_change_btn">Change your name.</button>
         </div>
-    </body>
+        <div hidden id="player_list_root">
+          <ul id="player_list"></ul>
+        </div>
+      </body>
 </html>  
