@@ -18,9 +18,7 @@
           $('#name_form').submit(function(e){
             e.preventDefault();
             var name = $('#name_input').val();
-            console.log('id? ' + id);
-            console.log({id: id, name});
-            socket.emit('nameSet', {id, name});
+            socket.emit('nameSet', {name});
             $("#name_form").hide();
             $("#name_change_btn").text("Change name from " + name);
             $("#name_change_btn").show();

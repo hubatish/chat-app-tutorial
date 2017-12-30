@@ -39,19 +39,19 @@ let room = 'default';
 
 io.on('connection', function(client) {
   client.on('join', function(data) {
-    const id = guid();
+    const id = client.id;
     playersForIds.set(id, {});
-    console.log('player ids joined' + id + ", " + JSON.stringify(playersForIds));
-    client.join(room);    
+    client.join(room);
     client.emit('clientJoin', {id});
   });
 
   client.on('nameSet', function(data) {
-    console.log(data);
-    console.log('setting name: ' + JSON.stringify(playersForIds));
-    playersForIds.get(data.id).name = data.name;
-    console.log(playersForIds.get(data.id));
+    playersForIds.get(client.id).name = data.name;
     io.in(room).emit('allPlayersNames', getPlayerNames());
+  });
+
+  client.on('disconnect', (reason) => {
+    playersForIds.delete(client.id);
   });
 });
 
