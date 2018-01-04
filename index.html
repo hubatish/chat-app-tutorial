@@ -8,7 +8,7 @@
       <script>
         // Can't use nice things like let, const, {name} cause iOs Safari..
 
-        // Handles both localhost and AWS.
+        // Start socket on both localhost and AWS.
         var serverIp = window.location.href;
         var socket = io.connect(serverIp);
 
@@ -30,9 +30,34 @@
           }
         }
 
+        function startCountDown(totalSeconds, onDone) {
+          var seconds = totalSeconds;
+          var countdownText = $('#countdown-text');
+          function tickSecond() {
+            console.log('seconds are ticking! ' + seconds);
+            seconds--;
+            var minutes = 0;
+            if (seconds == 0) {
+              onDone();
+              return;
+            }
+            if (seconds >= 60) {
+              seconds = 0;
+              minutes = seconds % 60;
+            }
+            countdownText.text((minutes ? (minutes > 9 ? minutes : minutes) : "0") + ":" + (seconds > 9 ? seconds : "0" + seconds));
+
+            timer();
+          }
+          function timer() {
+              t = setTimeout(tickSecond, 1000);
+          }
+          timer();
+        }
+
+
         $(function() {
           // document ready.
-
           // Set up name changing.
           $('#name_form').submit(function(e){
             e.preventDefault();
@@ -108,6 +133,9 @@
           $('#start_game_root').hide();
           $('#ability_root').show();
           $('#role_text').text('Role: ' + role);
+          startCountDown(60, function() {
+            console.log('times up!');
+          });
 
           // handle the ability:
           switch(role) {
@@ -157,6 +185,10 @@
         <div hidden id="seer_root">
           <p id="seer_start">Click one of the players below to see their role.</p>
           <p hidden id="seer_reveal"></p>
+        </div>
+        <div>
+          <p>Vote before time is out!</p>
+          <p id="countdown-text"></p>
         </div>
       </div>
       <div hidden id="player_list_root">
