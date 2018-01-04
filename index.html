@@ -1,5 +1,5 @@
-<!doctype html>  
-<html lang="en">  
+<!doctype html>
+<html lang="en">
     <head>
       <script src="/jquery/dist/jquery.js"></script>
       <script src="/socket.io/socket.io.js"></script>
@@ -22,6 +22,7 @@
         var role = Role.Villager;
         var allPlayersNames = [];
         var shouldShowSeer = false;
+        var votedPlayer = '';
 
         function setListEntries(list_root, names) {
           list_root.empty();
@@ -34,7 +35,6 @@
           var seconds = totalSeconds;
           var countdownText = $('#countdown-text');
           function tickSecond() {
-            console.log('seconds are ticking! ' + seconds);
             seconds--;
             var minutes = 0;
             if (seconds == 0) {
@@ -52,7 +52,7 @@
           function timer() {
               t = setTimeout(tickSecond, 1000);
           }
-          timer();
+          tickSecond();
         }
 
 
@@ -102,6 +102,13 @@
             if (shouldShowSeer) {
               innerHtml += '<button id="seer_'+name+'">View Role</button>';
             }
+            if (gameStarted) {
+              console.log('game started here comes html!');
+              innerHtml += '<button id="vote_'+name+'">Vote to Lynch</button>';
+              if (votedPlayer == name) {
+                innerHtml += "Voted For!"
+              }
+            }
             innerHtml += '</li>';
             $('#player_list').append(innerHtml);
             if (shouldShowSeer) {
@@ -109,6 +116,14 @@
                 console.log('seer clicked on' + name);
                 socket.emit('viewRole', {name: name});
                 shouldShowSeer = false;
+                setPlayerNamesList(allPlayersNames);
+              });
+            }
+            if (gameStarted) {
+              $('#vote_' + name).click(function(unused) {
+                console.log('voted for ' + name);
+                votedPlayer = name;
+                //socket.emit('voteFor', {name: name});
                 setPlayerNamesList(allPlayersNames);
               });
             }
@@ -147,7 +162,6 @@
               $('#seer_root').show();
               $('#seer_start').show();
               shouldShowSeer = true;
-              setPlayerNamesList(allPlayersNames);
               break;
             case Role.Villager:
               $('#villager_root').show();
@@ -155,6 +169,8 @@
             default:
               break;
           }
+
+          setPlayerNamesList(allPlayersNames);
         });
        </script>
     </head>
