@@ -37,16 +37,15 @@
           function tickSecond() {
             seconds--;
             var minutes = 0;
-            if (seconds == 0) {
-              onDone();
-              return;
-            }
             if (seconds >= 60) {
               seconds = 0;
               minutes = seconds % 60;
             }
             countdownText.text((minutes ? (minutes > 9 ? minutes : minutes) : "0") + ":" + (seconds > 9 ? seconds : "0" + seconds));
-
+            if (seconds == 0) {
+              onDone();
+              return;
+            }
             timer();
           }
           function timer() {
@@ -54,7 +53,6 @@
           }
           tickSecond();
         }
-
 
         $(function() {
           // document ready.
@@ -103,7 +101,6 @@
               innerHtml += '<button id="seer_'+name+'">View Role</button>';
             }
             if (gameStarted) {
-              console.log('game started here comes html!');
               innerHtml += '<button id="vote_'+name+'">Vote to Lynch</button>';
               if (votedPlayer == name) {
                 innerHtml += "Voted For!"
@@ -149,7 +146,7 @@
           $('#ability_root').show();
           $('#role_text').text('Role: ' + role);
           startCountDown(60, function() {
-            console.log('times up!');
+            //console.log('times up!');
           });
 
           // handle the ability:
@@ -171,6 +168,10 @@
           }
 
           setPlayerNamesList(allPlayersNames);
+        });
+
+        socket.on('gameDone', function(data) {
+          console.log(data);
         });
        </script>
     </head>

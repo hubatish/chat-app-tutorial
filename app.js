@@ -100,6 +100,7 @@ io.on('connection', function(client) {
       }
       io.to(id).emit('startGame', clientData);
     }
+    setTimeout(timesUp, 1000 * 60);
   });
 
   function findPlayerByName(name) {
@@ -117,6 +118,67 @@ io.on('connection', function(client) {
     }
     client.emit('tellRole', player);
   });
+
+  client.on('voteFor', (data) => {
+    playersForIds.get(client.id).voteFor = data.name;
+  });
+
+  function timesUp() {
+    // Calculate who has most votes.
+    const voteTallies = new Map();
+    for (const [id, player] of playersForIds) {
+      if (player.voteFor) {
+        if (!voteTallies.has(player.voteFor)) {
+          voteTallies.set(player.voteFor, 0);
+        }
+        voteTallies.set(player.voteFor, voteTallies.get() + 1);  
+      }
+    }
+    let maxNames = [];
+    let maxVotes = 0;
+    for (const [name, numVotes] of voteTallies) {
+      if (numVotes > maxVotes) {
+        maxNames = [name];
+        maxVotes = numVotes;
+      } else if (numVotes == maxVotes && numVotes > 0) {
+        maxNames.push(name);
+      }
+    }
+    console.log('times up! ' + JSON.stringify(maxNames));
+    // Was a werewolf killed?
+    let werewolfKilled = false;
+    let villagersWon = true;
+    for (const name of maxNames) {
+      if (playersForIds.get(name).role == Role.Werewolf) {
+        werewolfKilled = true;
+        villagersWon = true;
+      }
+    }
+    if (!werewolfKilled) {
+      if (maxVotes > 0) {
+        // Someone was killed despite no werewolves killed.
+        villagersWon = false;
+      } else {
+        // check if there were any werewolves
+        for (const [id, player] of playersForIds) {
+          if (player.role == Role.Werewolf) {
+            villagersWon = false;
+          }
+        }
+      }
+    }
+    // inform players of result
+    for (const [id, player] of playersForIds) {
+      const won = player.role == Role.Werewolf ? 
+          !werewolfKilled :
+          villagersWon;
+      console.log('broadcasting to id: ' + id);
+      io.to(id).emit('gameDone', {
+        won,
+        killedPlayers: maxNames,
+      });
+    }
+  }
 
   client.on('disconnect', (reason) => {
     playersForIds.delete(client.id);
