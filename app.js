@@ -169,11 +169,11 @@ io.on('connection', function(client) {
     }
     // inform players of result
     for (const [id, player] of playersForIds) {
-      const won = player.role == Role.Werewolf ? 
+      const won = player.role == Role.Werewolf ?
           !werewolfKilled :
           villagersWon;
       console.log('broadcasting to id: ' + id);
-      io.to(id).emit('gameDone', {
+      io.in(room).to(id).emit('gameDone', {
         won,
         killedPlayers: maxNames,
       });
