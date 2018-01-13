@@ -14,6 +14,8 @@
 
         var id = '';
         var gameStarted = false;
+        var gameDone = false;
+        var killedPlayers = [];
         var Role = {
           Werewolf: 'Werewolf',
           Villager: 'Villager',
@@ -106,6 +108,11 @@
                 innerHtml += "Voted For!"
               }
             }
+            if (gameDone) {
+              if (killedPlayers.indexOf(name) != -1) {
+                innerHtml += '<p>Lynched!</p>';
+              }
+            }
             innerHtml += '</li>';
             $('#player_list').append(innerHtml);
             if (shouldShowSeer) {
@@ -172,6 +179,18 @@
 
         socket.on('gameDone', function(data) {
           console.log(data);
+          $('#end_game').show();
+          if (data.won) {
+            $('#won_game').show();
+            $('#lose_game').hide();
+          } else {
+            $('#lose_game').show();
+            $('#won_game').hide();
+          }
+          gameDone = true;
+          gameStarted = false;
+          killedPlayers = data.killedPlayers;
+          setPlayerNamesList(allPlayersNames);
         });
        </script>
     </head>
@@ -190,6 +209,10 @@
         <p>^ Press only when everyone is ready.</p>
       </div>
       <p id="loading">Loading..</p>
+      <div hidden id="end_game">
+        <p hidden id="won_game">You won!</p>
+        <p hidden id="lose_game">You lost.</p>
+      </div>
       <div hidden id="ability_root">
         <p id="role_text">Role: </p>
         <div hidden id="werewolf_root">
