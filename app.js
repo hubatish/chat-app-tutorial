@@ -100,7 +100,7 @@ io.on('connection', function(client) {
       }
       io.to(id).emit('startGame', clientData);
     }
-    setTimeout(timesUp, 1000 * 60);
+    setTimeout(timesUp, 1000 * 30);
   });
 
   function findPlayerByName(name) {
@@ -120,22 +120,28 @@ io.on('connection', function(client) {
   });
 
   client.on('voteFor', (data) => {
+    console.log('voteFor!' + data.name);
     playersForIds.get(client.id).voteFor = data.name;
   });
 
   function timesUp() {
     // Calculate who has most votes.
     const voteTallies = new Map();
+    console.log('players map next!');
+    console.log(playersForIds);
     for (const [id, player] of playersForIds) {
       if (player.voteFor) {
+        console.log('votefor is a thing!');
         if (!voteTallies.has(player.voteFor)) {
           voteTallies.set(player.voteFor, 0);
         }
-        voteTallies.set(player.voteFor, voteTallies.get() + 1);  
+        voteTallies.set(player.voteFor, voteTallies.get(player.voteFor) + 1);
       }
     }
     let maxNames = [];
     let maxVotes = 0;
+    console.log('vote tallies next: ');
+    console.log(voteTallies);
     for (const [name, numVotes] of voteTallies) {
       if (numVotes > maxVotes) {
         maxNames = [name];
@@ -149,7 +155,8 @@ io.on('connection', function(client) {
     let werewolfKilled = false;
     let villagersWon = true;
     for (const name of maxNames) {
-      if (playersForIds.get(name).role == Role.Werewolf) {
+      const player = findPlayerByName(name);
+      if (player.role == Role.Werewolf) {
         werewolfKilled = true;
         villagersWon = true;
       }

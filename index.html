@@ -127,7 +127,7 @@
               $('#vote_' + name).click(function(unused) {
                 console.log('voted for ' + name);
                 votedPlayer = name;
-                //socket.emit('voteFor', {name: name});
+                socket.emit('voteFor', {name: name});
                 setPlayerNamesList(allPlayersNames);
               });
             }
