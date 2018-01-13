@@ -99,10 +99,10 @@
           $('#player_list').empty();
           for (var name of names) {
             var innerHtml = '<li>' + name;
-            if (shouldShowSeer) {
-              innerHtml += '<button id="seer_'+name+'">View Role</button>';
-            }
             if (gameStarted) {
+              if (shouldShowSeer) {
+                innerHtml += '<button id="seer_'+name+'">View Role</button>';
+              }
               innerHtml += '<button id="vote_'+name+'">Vote to Lynch</button>';
               if (votedPlayer == name) {
                 innerHtml += "Voted For!"
@@ -110,7 +110,7 @@
             }
             if (gameDone) {
               if (killedPlayers.indexOf(name) != -1) {
-                innerHtml += '<p>Lynched!</p>';
+                innerHtml += ' Lynched!';
               }
             }
             innerHtml += '</li>';
@@ -133,6 +133,7 @@
             }
           }
         }
+
         socket.on('allPlayersNames', function(names) {
           setPlayerNamesList(names);
         });
@@ -151,7 +152,12 @@
           role = data.role;
           $('#start_game_root').hide();
           $('#ability_root').show();
+          $('#role_display_root').show();
           $('#role_text').text('Role: ' + role);
+          $('#seer_root').hide();
+          $('#seer_start').hide();
+          $('#villager_root').hide();
+          $('#werewolf_root').hide();
           startCountDown(60, function() {
             //console.log('times up!');
           });
@@ -180,6 +186,7 @@
         socket.on('gameDone', function(data) {
           console.log(data);
           $('#end_game').show();
+          $('#ability_root').hide();
           if (data.won) {
             $('#won_game').show();
             $('#lose_game').hide();
@@ -213,8 +220,10 @@
         <p hidden id="won_game">You won!</p>
         <p hidden id="lose_game">You lost.</p>
       </div>
+      <div hidden id="role_display_root">
+        <p id="role_text">Role: </p>          
+      </div>
       <div hidden id="ability_root">
-        <p id="role_text">Role: </p>
         <div hidden id="werewolf_root">
           <p>The werewolves are:</p>
           <ul class="werewolf_list"></ul>
