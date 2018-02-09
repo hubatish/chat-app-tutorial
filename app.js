@@ -41,9 +41,9 @@ function getPlayerNames() {
 function getWerewolfNames() {
   const names = [];
   for (const entry of playersForIds) {
+    const player = entry[1];
     if (player.role == Role.Werewolf) {
-      let name = entry[1].name;
-      names.push(name);  
+      names.push(player.name);  
     }
   }
   return names;  
