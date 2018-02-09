@@ -1,4 +1,5 @@
 // app.js
+'use strict';
 var express = require('express');
 var http = require('http');
 var socketIo = require('socket.io');
@@ -28,18 +29,20 @@ function getRandomInt(min, max) {
 let playersForIds = new Map();
 function getPlayerNames() {
   const names = [];
-  for (const [id, player] of playersForIds) {
-    let name = player.name;
-    names.push(name);
+  // So sad can't use [id, player] of..
+  // Cause only node 5.6 on windows.
+  // Instead get back array [id, player].
+  for (const entry of playersForIds) {
+    names.push(entry[1].name);
   }
   return names;
 }
 
 function getWerewolfNames() {
   const names = [];
-  for (const [id, player] of playersForIds) {
+  for (const entry of playersForIds) {
     if (player.role == Role.Werewolf) {
-      let name = player.name;
+      let name = entry[1].name;
       names.push(name);  
     }
   }
@@ -50,7 +53,9 @@ function assignRoles() {
   let maxWerewolves = playersForIds.size < 4 ? 1 : 2;
   let numWerewolves = 0;
   const extraCards = 3;
-  for (const [id, player] of playersForIds) {
+  for (const entry of playersForIds) {
+    const id = entry[0];
+    const player = entry[1];
     if (numWerewolves < maxWerewolves &&
         getRandomInt(0, playersForIds.size + extraCards) < 2) {
       playersForIds.get(id).role = Role.Werewolf; 
@@ -85,7 +90,9 @@ io.on('connection', function(client) {
 
   client.on('startGame', (data) => {
     assignRoles();
-    for (const [id, player] of playersForIds) {
+    for (const entry of playersForIds) {
+      const id = entry[0];
+      const player = entry[1];
       console.log('attempting to send' + id + ' to '+player.role);
       // Send any extra info with data.
       const clientData = {
@@ -104,7 +111,9 @@ io.on('connection', function(client) {
   });
 
   function findPlayerByName(name) {
-    for (const [id, player] of playersForIds) {
+    for (const entry of playersForIds) {
+      const id = entry[0];
+      const player = entry[1];
       if (name == player.name) {
         return player;
       }
@@ -126,7 +135,9 @@ io.on('connection', function(client) {
   function timesUp() {
     // Calculate who has most votes.
     const voteTallies = new Map();
-    for (const [id, player] of playersForIds) {
+    for (const entry of playersForIds) {
+      const id = entry[0];
+      const player = entry[1];
       if (player.voteFor) {
         if (!voteTallies.has(player.voteFor)) {
           voteTallies.set(player.voteFor, 0);
@@ -136,7 +147,9 @@ io.on('connection', function(client) {
     }
     let maxNames = [];
     let maxVotes = 0;
-    for (const [name, numVotes] of voteTallies) {
+    for (const entry of voteTallies) {
+      const name = entry[0];
+      const numVotes = entry[1];
       if (numVotes > maxVotes) {
         maxNames = [name];
         maxVotes = numVotes;
@@ -161,7 +174,9 @@ io.on('connection', function(client) {
         villagersWon = false;
       } else {
         // check if there were any werewolves
-        for (const [id, player] of playersForIds) {
+        for (const entry of playersForIds) {
+          const id = entry[0];
+          const player = entry[1];
           if (player.role == Role.Werewolf) {
             villagersWon = false;
           }
@@ -169,7 +184,9 @@ io.on('connection', function(client) {
       }
     }
     // inform players of result
-    for (const [id, player] of playersForIds) {
+    for (const entry of playersForIds) {
+      const id = entry[0];
+      const player = entry[1];
       const won = player.role == Role.Werewolf ?
           !werewolfKilled :
           villagersWon;
