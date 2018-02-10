@@ -20,10 +20,11 @@ const Role = {
   Seer: 'Seer',
 };
 
+//The maximum is exclusive and the minimum is inclusive
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+  return Math.floor(Math.random() * (max - min)) + min;
 }
 
 let playersForIds = new Map();
@@ -84,6 +85,30 @@ function findPlayerByName(name) {
   return {};
 }
 
+function countPlayerByRole(role) {
+  let numRole = 0;
+  for (const entry of playersForIds) {
+    const id = entry[0];
+    const player = entry[1];
+    if (role == player.role) {
+      numRole += 1;
+    }
+  }
+  return numRole;
+}
+
+function getRandomPlayerExcept(id) {
+  const playerIds = Array.from(playersForIds.keys());
+  playerIds.splice(playerIds.indexOf(id));
+  if (playerIds.length == 0) {
+    return {};
+  }
+  const r = getRandomInt(0, playerIds.length);
+  console.log('playerIds ' + JSON.stringify(playerIds));
+  console.log('r: ' + r);
+  return playersForIds.get(playerIds[r]);
+}
+
 io.on('connection', function(client) {
   client.on('join', function(data) {
     const id = client.id;
@@ -114,6 +139,8 @@ io.on('connection', function(client) {
 
   client.on('startGame', (data) => {
     assignRoles();
+    const numVillagers = countPlayerByRole(Role.Villager);
+    const werewolves = getWerewolfNames();
     for (const entry of playersForIds) {
       const id = entry[0];
       const player = entry[1];
@@ -123,8 +150,20 @@ io.on('connection', function(client) {
         role: player.role
       };
       switch(player.role) {
+        case Role.Villager:
+          clientData.numVillagers = numVillagers;
+          break;
         case Role.Werewolf:
-          clientData.werewolves = getWerewolfNames();
+          clientData.werewolves = werewolves;
+          break;
+        case Role.Seer:
+          let viewedPlayer = getRandomPlayerExcept(id);
+          console.log('viewedplayer ' + JSON.stringify(viewedPlayer));
+          if (!viewedPlayer.role) {
+            // Just give self if only player.
+            viewedPlayer = player;
+          }
+          clientData.viewedPlayer = viewedPlayer;
           break;
         default:
           break; 
