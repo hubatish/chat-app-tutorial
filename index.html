@@ -30,17 +30,18 @@
         list_root.append("<li>"+name+"</li>");
       }
     }
+    let currentCountdown = null;
     function startCountDown(totalSeconds, onDone) {
+      if (currentCountdown != null) {
+        clearTimeout(currentCountdown);
+      }
       var seconds = totalSeconds;
       var countdownText = $('#countdown-text');
       function tickSecond() {
         seconds--;
-        var minutes = 0;
-        if (seconds >= 60) {
-          seconds = 0;
-          minutes = seconds % 60;
-        }
-        countdownText.text((minutes ? (minutes > 9 ? minutes : minutes) : "0") + ":" + (seconds > 9 ? seconds : "0" + seconds));
+        var minutes = Math.floor(seconds / 60);
+        var displaySeconds =seconds % 60;
+        countdownText.text((minutes ? (minutes > 9 ? minutes : minutes) : "0") + ":" + (displaySeconds > 9 ? displaySeconds : "0" + displaySeconds));
         if (seconds == 0) {
           onDone();
           return;
@@ -48,7 +49,7 @@
         timer();
       }
       function timer() {
-          t = setTimeout(tickSecond, 1000);
+          currentCountdown = setTimeout(tickSecond, 1000);
       }
       tickSecond();
     }
@@ -70,9 +71,12 @@
         $("#name_form").show();
         $("#name_change_btn").hide();
       });
-      $('#start_game_btn').click(function() {
+      $('.start_game_btn').click(function() {
         socket.emit('startGame', {});
         $('#start_game_root').hide();
+      });
+      $('#end_round_btn').click(function() {
+        socket.emit('endRound', {});
       });
     });
     socket.on('connect', function(data) {
@@ -140,6 +144,7 @@
       gameStarted = true;
       role = data.role;
       $('#start_game_root').hide();
+      $('#end_game').hide();
       $('#ability_root').show();
       $('#role_display_root').show();
       $('#role_text').text('Role: ' + role);
@@ -199,13 +204,15 @@
   </div>
   <div hidden id="start_game_root">
     <p>After five minutes, vote to kill someone. The werewolves and minion win if a werewolf is not killed.</p>
-    <button id="start_game_btn">Start Round</button>
+    <button class="start_game_btn">Start Round</button>
     <p>^ Press only when everyone is ready.</p>
   </div>
   <p id="loading">Loading..</p>
   <div hidden id="end_game">
     <p hidden id="won_game">You won!</p>
     <p hidden id="lose_game">You lost.</p>
+    <button class="start_game_btn">Restart Round</button>
+    <p>^ Press only when everyone is ready.</p>
   </div>
   <div hidden id="role_display_root">
     <p id="role_text">Role: </p>          
@@ -226,6 +233,8 @@
       <p>Vote before time is out!</p>
       <p id="countdown-text"></p>
     </div>
+    <button id="end_round_btn">End Round</button>
+    <p>^ Press only when everyone is ready.</p>
   </div>
   <div hidden id="player_list_root">
       <p>Players</p>

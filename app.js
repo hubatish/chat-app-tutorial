@@ -71,6 +71,18 @@ function assignRoles() {
 }
 
 let room = 'default';
+let roundTimeout;
+
+function findPlayerByName(name) {
+  for (const entry of playersForIds) {
+    const id = entry[0];
+    const player = entry[1];
+    if (name == player.name) {
+      return player;
+    }
+  }
+  return {};
+}
 
 io.on('connection', function(client) {
   client.on('join', function(data) {
@@ -86,6 +98,18 @@ io.on('connection', function(client) {
   client.on('nameSet', function(data) {
     playersForIds.get(client.id).name = data.name;
     io.in(room).emit('allPlayersNames', getPlayerNames());
+  });
+
+  client.on('viewRole', (data) => {
+    const player = findPlayerByName(data.name);
+    if (!player.role) {
+      console.log('no player found with name '+data.name);
+    }
+    client.emit('tellRole', player);
+  });  
+
+  client.on('voteFor', (data) => {
+    playersForIds.get(client.id).voteFor = data.name;
   });
 
   client.on('startGame', (data) => {
@@ -107,29 +131,12 @@ io.on('connection', function(client) {
       }
       io.to(id).emit('startGame', clientData);
     }
-    setTimeout(timesUp, 1000 * 30);
+    roundTimeout = setTimeout(timesUp, 1000 * 30);
   });
 
-  function findPlayerByName(name) {
-    for (const entry of playersForIds) {
-      const id = entry[0];
-      const player = entry[1];
-      if (name == player.name) {
-        return player;
-      }
-    }
-    return {};
-  }
-  client.on('viewRole', (data) => {
-    const player = findPlayerByName(data.name);
-    if (!player.role) {
-      console.log('no player found with name '+data.name);
-    }
-    client.emit('tellRole', player);
-  });
-
-  client.on('voteFor', (data) => {
-    playersForIds.get(client.id).voteFor = data.name;
+  client.on('endRound', (data) => {
+    timesUp();
+    clearTimeout(roundTimeout);
   });
 
   function timesUp() {
