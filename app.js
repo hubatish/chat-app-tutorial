@@ -51,23 +51,24 @@ function getWerewolfNames() {
 }
 
 function assignRoles() {
+  const roleSet = [];
   let maxWerewolves = playersForIds.size < 4 ? 1 : 2;
-  let numWerewolves = 0;
-  const extraCards = 3;
+  for (let i=0; i<= maxWerewolves; i++) {
+    roleSet.push(Role.Werewolf);
+  }
+  // Add singleton roles.
+  roleSet.push(Role.Seer);
+  const extraCards = playersForIds.size < 4 ? 1 : 3;
+  for (let i = roleSet.length; i < playersForIds.size + extraCards; i++) {
+    // Add roles with multiple people.
+    roleSet.push(Role.Villager);
+  }
   for (const entry of playersForIds) {
     const id = entry[0];
     const player = entry[1];
-    if (numWerewolves < maxWerewolves &&
-        getRandomInt(0, playersForIds.size + extraCards) < 2) {
-      playersForIds.get(id).role = Role.Werewolf; 
-      numWerewolves += 1;       
-    } else {
-      if (getRandomInt(0, playersForIds.size + extraCards) < 2) {
-        playersForIds.get(id).role = Role.Seer;
-      } else {
-        playersForIds.get(id).role = Role.Villager;
-      }
-    }
+    const r = getRandomInt(0, roleSet.length);
+    playersForIds.get(id).role = roleSet[r];
+    roleSet.splice(r, 1);
   }
 }
 
@@ -99,13 +100,11 @@ function countPlayerByRole(role) {
 
 function getRandomPlayerExcept(id) {
   const playerIds = Array.from(playersForIds.keys());
-  playerIds.splice(playerIds.indexOf(id));
+  playerIds.splice(playerIds.indexOf(id), 1);
   if (playerIds.length == 0) {
     return {};
   }
   const r = getRandomInt(0, playerIds.length);
-  console.log('playerIds ' + JSON.stringify(playerIds));
-  console.log('r: ' + r);
   return playersForIds.get(playerIds[r]);
 }
 
@@ -144,7 +143,7 @@ io.on('connection', function(client) {
     for (const entry of playersForIds) {
       const id = entry[0];
       const player = entry[1];
-      console.log('attempting to send' + id + ' to '+player.role);
+      console.log('attempting to send' + player.role + ' to '+ id);
       // Send any extra info with data.
       const clientData = {
         role: player.role
@@ -158,7 +157,6 @@ io.on('connection', function(client) {
           break;
         case Role.Seer:
           let viewedPlayer = getRandomPlayerExcept(id);
-          console.log('viewedplayer ' + JSON.stringify(viewedPlayer));
           if (!viewedPlayer.role) {
             // Just give self if only player.
             viewedPlayer = player;
