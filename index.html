@@ -18,7 +18,8 @@
     var Role = {
       Werewolf: 'Werewolf',
       Villager: 'Villager',
-      Seer: 'Seer'
+      Seer: 'Seer',
+      Riddler: 'Riddler'
     };
     var role = Role.Villager;
     var allPlayersNames = [];
@@ -130,7 +131,6 @@
       $('#ability_root').show();
       $('#role_display_root').show();
       $('#role_text').text('Role: ' + role);
-      $('#seer_root').hide();
       $('#villager_root').hide();
       $('#werewolf_root').hide();
       startCountDown(60, function() {
@@ -143,9 +143,13 @@
           setListEntries($('.werewolf_list'), data.werewolves);
           break;
         case Role.Seer:
-          $('#seer_root').show();
-          $('#seer_reveal').text('You have seen that ' + data.viewedPlayer.name +
+          $('#villager_root').show();
+          $('#villager_info').text('You have seen that ' + data.viewedPlayer.name +
               ' is a ' + data.viewedPlayer.role);
+          break;
+        case Role.Riddler:
+          $('#villager_root').show();
+          $('#villager_info').text(data.riddle);
           break;
         case Role.Villager:
           $('#villager_root').show();
@@ -207,9 +211,6 @@
     </div>
     <div hidden id="villager_root">
       <p id="villager_info"></p>
-    </div>
-    <div hidden id="seer_root">
-      <p id="seer_reveal"></p>
     </div>
     <div>
       <p>Vote before time is out!</p>

@@ -18,7 +18,19 @@ const Role = {
   Werewolf: 'Werewolf',
   Villager: 'Villager',
   Seer: 'Seer',
+  Riddler: 'Riddler'
 };
+
+const Team = {
+  Villagers: 'Villagers',
+  Werewolves: 'Werewolves'
+};
+
+const teamForRole = new Map();
+teamForRole.set(Role.Werewolf, Team.Werewolves);
+teamForRole.set(Role.Villager, Team.Villagers);
+teamForRole.set(Role.Seer, Team.Villagers);
+teamForRole.set(Role.Riddler, Team.Villagers);
 
 //The maximum is exclusive and the minimum is inclusive
 function getRandomInt(min, max) {
@@ -61,7 +73,11 @@ function assignRoles() {
   const extraCards = playersForIds.size < 4 ? 1 : 3;
   for (let i = roleSet.length; i < playersForIds.size + extraCards; i++) {
     // Add roles with multiple people.
-    roleSet.push(Role.Villager);
+    if (getRandomInt(0, 3) == 0) {
+      roleSet.push(Role.Villager);      
+    } else {
+      roleSet.push(Role.Riddler);
+    }
   }
   for (const entry of playersForIds) {
     const id = entry[0];
@@ -71,9 +87,6 @@ function assignRoles() {
     roleSet.splice(r, 1);
   }
 }
-
-let room = 'default';
-let roundTimeout;
 
 function findPlayerByName(name) {
   for (const entry of playersForIds) {
@@ -86,7 +99,7 @@ function findPlayerByName(name) {
   return {};
 }
 
-function countPlayerByRole(role) {
+function countPlayersByRole(role) {
   let numRole = 0;
   for (const entry of playersForIds) {
     const id = entry[0];
@@ -98,9 +111,11 @@ function countPlayerByRole(role) {
   return numRole;
 }
 
-function getRandomPlayerExcept(id) {
+function getRandomPlayerExceptIds(ids) {
   const playerIds = Array.from(playersForIds.keys());
-  playerIds.splice(playerIds.indexOf(id), 1);
+  for (const id of ids) {
+    playerIds.splice(playerIds.indexOf(id), 1);    
+  }
   if (playerIds.length == 0) {
     return {};
   }
@@ -108,11 +123,35 @@ function getRandomPlayerExcept(id) {
   return playersForIds.get(playerIds[r]);
 }
 
+function getRandomPlayerExcept(id) {
+  return getRandomPlayerExceptIds([id]);
+}
+
+function generateRiddle(id) {
+  const player1 = getRandomPlayerExcept(id);
+  if (!player1.role) {
+    return 'What happens to a story if no one is there to hear it?';
+  }
+  const player2 = getRandomPlayerExceptIds([id, player1.id]);
+  if (!player2.role) {
+    return "Don't trust anyone.";
+  }
+  const sameTeam =
+      teamForRole[player1.role] == teamForRole[player2.role] ?
+      'same' : 'opposite';
+  return player1.name + ' is on the ' + sameTeam + ' team as ' +
+      player2.name;
+}
+
+let room = 'default';
+let roundTimeout;
+
 io.on('connection', function(client) {
   client.on('join', function(data) {
     const id = client.id;
     playersForIds.set(id, {
       name: 'load' + client.id.substr(0, 5),
+      id,
     });
     client.join(room);
     client.emit('clientJoin', {id});
@@ -138,7 +177,7 @@ io.on('connection', function(client) {
 
   client.on('startGame', (data) => {
     assignRoles();
-    const numVillagers = countPlayerByRole(Role.Villager);
+    const numVillagers = countPlayersByRole(Role.Villager);
     const werewolves = getWerewolfNames();
     for (const entry of playersForIds) {
       const id = entry[0];
@@ -162,6 +201,9 @@ io.on('connection', function(client) {
             viewedPlayer = player;
           }
           clientData.viewedPlayer = viewedPlayer;
+          break;
+        case Role.Riddler:
+          clientData.riddle = generateRiddle(id);
           break;
         default:
           break; 
