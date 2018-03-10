@@ -12,6 +12,7 @@
     var serverIp = window.location.href;
     var socket = io.connect(serverIp);
     var id = '';
+    var allPlayersNames = [];
 
     // Game variables.
     var GameScene = {
@@ -20,7 +21,6 @@
       GameEnd: 'GameEnd' // Game has ended, show results.
     };
     var curScene = GameScene.Welcome;
-    var killedPlayers = [];
     var Role = {
       Werewolf: 'Werewolf',
       Villager: 'Villager',
@@ -28,15 +28,14 @@
       Riddler: 'Riddler'
     };
     var role = Role.Villager;
-    var allPlayersNames = [];
-    var shouldShowSeer = false;
+    var killedPlayers = [];
     var votedPlayer = '';
     var currentCountdown = null;
     function clearNewGameValues() {
       // set values equal to their starting values.
       killedPlayers = [];
       role = Role.Villager;
-      shouldShowSeer = false;
+      votedPlayer = '';
       currentCountdown = null;
     }
 

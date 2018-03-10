@@ -182,6 +182,8 @@ io.on('connection', function(client) {
     for (const entry of playersForIds) {
       const id = entry[0];
       const player = entry[1];
+      // Clear player in-game variables.
+      playersForIds.get(id).voteFor = '';
       console.log('attempting to send' + player.role + ' to '+ id);
       // Send any extra info with data.
       const clientData = {
