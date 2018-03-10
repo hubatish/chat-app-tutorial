@@ -5,3 +5,6 @@ To get started, after installing node, run
 npm install
 then
 node app.js
+or maybe:
+forever start app.js
+
