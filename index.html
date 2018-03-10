@@ -12,8 +12,14 @@
     var serverIp = window.location.href;
     var socket = io.connect(serverIp);
     var id = '';
-    var gameStarted = false;
-    var gameDone = false;
+
+    // Game variables.
+    var GameScene = {
+      Welcome: 'Welcome', // Starting screen - enter name/lobby.
+      GameInProgress: 'InProgress', // In progress game screen.
+      GameEnd: 'GameEnd' // Game has ended, show results.
+    };
+    var curScene = GameScene.Welcome;
     var killedPlayers = [];
     var Role = {
       Werewolf: 'Werewolf',
@@ -25,13 +31,21 @@
     var allPlayersNames = [];
     var shouldShowSeer = false;
     var votedPlayer = '';
+    var currentCountdown = null;
+    function clearNewGameValues() {
+      // set values equal to their starting values.
+      killedPlayers = [];
+      role = Role.Villager;
+      shouldShowSeer = false;
+      currentCountdown = null;
+    }
+
     function setListEntries(list_root, names) {
       list_root.empty();
       for (var name of names) {
         list_root.append("<li>"+name+"</li>");
       }
     }
-    let currentCountdown = null;
     function startCountDown(totalSeconds, onDone) {
       if (currentCountdown != null) {
         clearTimeout(currentCountdown);
@@ -64,7 +78,7 @@
         $("#name_form").hide();
         $("#name_change_btn").text("Change name from " + name);
         $("#name_change_btn").show();
-        if (!gameStarted) {
+        if (curScene == GameScene.Welcome) {
           $("#start_game_root").show();
         }
       });
@@ -96,20 +110,20 @@
       $('#player_list').empty();
       for (var name of names) {
         var innerHtml = '<li>' + name;
-        if (gameStarted) {
+        if (curScene == GameScene.GameInProgress) {
           innerHtml += '<button id="vote_'+name+'">Vote to Lynch</button>';
           if (votedPlayer == name) {
             innerHtml += "Voted For!"
           }
         }
-        if (gameDone) {
+        if (curScene == GameScene.GameEnd) {
           if (killedPlayers.indexOf(name) != -1) {
             innerHtml += ' Lynched!';
           }
         }
         innerHtml += '</li>';
         $('#player_list').append(innerHtml);
-        if (gameStarted) {
+        if (curScene == GameScene.GameInProgress) {
           $('#vote_' + name).click(function(unused) {
             console.log('voted for ' + name);
             votedPlayer = name;
@@ -124,15 +138,20 @@
     });
     socket.on('startGame', function(data) {
       console.log('game started msg received' + data.role);
-      gameStarted = true;
+      clearNewGameValues();
+      curScene = GameScene.GameInProgress;
       role = data.role;
+      // Clear visible elements.
       $('#start_game_root').hide();
       $('#end_game').hide();
+      $('#villager_root').hide();
+      $('#werewolf_root').hide();
+
+      // Show some things.
       $('#ability_root').show();
       $('#role_display_root').show();
       $('#role_text').text('Role: ' + role);
-      $('#villager_root').hide();
-      $('#werewolf_root').hide();
+
       startCountDown(60, function() {
         //console.log('times up!');
       });
@@ -172,8 +191,7 @@
         $('#lose_game').show();
         $('#won_game').hide();
       }
-      gameDone = true;
-      gameStarted = false;
+      curScene = GameScene.GameEnd;
       killedPlayers = data.killedPlayers;
       setPlayerNamesList(allPlayersNames);
     });
