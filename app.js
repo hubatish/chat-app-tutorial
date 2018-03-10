@@ -32,6 +32,10 @@ teamForRole.set(Role.Villager, Team.Villagers);
 teamForRole.set(Role.Seer, Team.Villagers);
 teamForRole.set(Role.Riddler, Team.Villagers);
 
+let playersForIds = new Map();
+let room = 'default';
+let roundTimeout;
+
 //The maximum is exclusive and the minimum is inclusive
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -39,7 +43,6 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-let playersForIds = new Map();
 function getPlayerNames() {
   const names = [];
   // So sad can't use [id, player] of..
@@ -143,9 +146,6 @@ function generateRiddle(id) {
       player2.name;
 }
 
-let room = 'default';
-let roundTimeout;
-
 io.on('connection', function(client) {
   client.on('join', function(data) {
     const id = client.id;
@@ -169,7 +169,7 @@ io.on('connection', function(client) {
       console.log('no player found with name '+data.name);
     }
     client.emit('tellRole', player);
-  });  
+  });
 
   client.on('voteFor', (data) => {
     playersForIds.get(client.id).voteFor = data.name;
