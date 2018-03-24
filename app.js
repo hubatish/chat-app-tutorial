@@ -36,12 +36,34 @@ teamForRole.set(Role.Riddler, Team.Villagers);
 let playersForIds = new Map();
 let room = 'default';
 let roundTimeout;
+let isGameGoing = false;
 
 //The maximum is exclusive and the minimum is inclusive
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function startGameGoing() {
+  isGameGoing = true;
+  // Set active status of all players for rest of round.
+  for (const entry of playersForIds) {
+    playersForIds.get(id).activeInGame = nameSet;
+  }
+}
+
+function getActivePlayersInRoom(unused) {
+  // Players who joined in middle of game should be ignored.
+  const activePlayers = [];
+  for (const entry of playersForIds) {
+    const id = entry[0];
+    const player = entry[1];
+    if (!player.activeInGame) {
+      activePlayers.push(player);
+    }
+  }
+  return activePlayers;
 }
 
 function getPlayerNames() {
@@ -152,6 +174,7 @@ io.on('connection', function(client) {
     const id = client.id;
     playersForIds.set(id, {
       name: 'load' + client.id.substr(0, 5),
+      nameSet: false,
       id,
     });
     client.join(room);
@@ -161,6 +184,7 @@ io.on('connection', function(client) {
 
   client.on('nameSet', function(data) {
     playersForIds.get(client.id).name = data.name;
+    playersForIds.get(client.id).nameSet = true;
     io.in(room).emit('allPlayersNames', getPlayerNames());
   });
 
@@ -177,6 +201,7 @@ io.on('connection', function(client) {
   });
 
   client.on('startGame', (data) => {
+    startGameGoing();
     assignRoles();
     const numVillagers = countPlayersByRole(Role.Villager);
     const werewolves = getWerewolfNames();
@@ -284,6 +309,7 @@ io.on('connection', function(client) {
         killedPlayers: maxNames,
       });
     }
+    isGameGoing = false;
   }
 
   client.on('disconnect', (reason) => {
