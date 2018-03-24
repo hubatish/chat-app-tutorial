@@ -9,6 +9,7 @@ var server = http.createServer(app);
 var io = socketIo(server);
 
 app.use(express.static(__dirname + '/node_modules'));
+app.use(express.static(__dirname + '/static'));
 app.get('/', function(req, res,next) {
   res.sendFile(__dirname + '/index.html');
 });
