@@ -4,7 +4,7 @@
   <style src="/bootstrap/css/bootstrap.css"></style>
   <script src="/jquery/dist/jquery.js"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="http://2a336fd6.ngrok.io/vorlon.js"></script>
+  <script src="/js-cookie/src/js.cookie.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <!-- Client Socket Emit -->
   <script>
@@ -14,6 +14,7 @@
     var socket = io.connect(serverIp);
     var id = '';
     var allPlayersNames = [];
+    var phoneId;
 
     // Game variables.
     var GameScene = {
@@ -39,7 +40,25 @@
       votedPlayer = '';
       currentCountdown = null;
     }
-
+    function guid() {
+      // Generate random guid.
+      function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+          .toString(16)
+          .substring(1);
+      }
+      return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+    }
+    function getPhoneId() {
+      var cookieConstant = 'werewolfPhoneId';
+      phoneId = Cookies.get(cookieConstant);
+      if (!phoneId) {
+        phoneId = guid();
+      }
+      Cookies.set(cookieConstant, phoneId, {expires: 1});
+      console.log("pohone id" + phoneId);
+      return phoneId;
+    }
     function setListEntries(list_root, names) {
       list_root.empty();
       for (var name of names) {
@@ -71,7 +90,7 @@
     $(function() {
       // document ready.
       // Set up name changing.
-      $('#name_form').submit(function(e){
+      $('#name_form').submit(function(e) {
         e.preventDefault();
         var name = $('#name_input').val();
         socket.emit('nameSet', {name: name});
@@ -95,7 +114,7 @@
       });
     });
     socket.on('connect', function(data) {
-      socket.emit('join', {});
+      socket.emit('join', {phoneId: getPhoneId()});
     });
     socket.on('clientJoin', function(data) {
       id = data.id;

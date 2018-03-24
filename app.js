@@ -62,7 +62,7 @@ function getWerewolfNames() {
       names.push(player.name);  
     }
   }
-  return names;  
+  return names;
 }
 
 function assignRoles() {
