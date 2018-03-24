@@ -45,21 +45,24 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-function startGameGoing() {
-  isGameGoing = true;
+function setGameGoing(isGoing) {
+  isGameGoing = isGoing;
   // Set active status of all players for rest of round.
   for (const entry of playersForIds) {
-    playersForIds.get(id).activeInGame = nameSet;
+    const id = entry[0];
+    const player = entry[1];
+    playersForIds.get(id).activeInGame = player.nameSet;
   }
+  io.in(room).emit('allPlayersNames', getPlayerNames());
 }
 
 function getActivePlayersInRoom(unused) {
-  // Players who joined in middle of game should be ignored.
   const activePlayers = [];
   for (const entry of playersForIds) {
     const id = entry[0];
     const player = entry[1];
-    if (!player.activeInGame) {
+    // Players who joined in middle of game should be ignored.
+    if (!isGameGoing || player.activeInGame) {
       activePlayers.push(player);
     }
   }
@@ -71,16 +74,15 @@ function getPlayerNames() {
   // So sad can't use [id, player] of..
   // Cause only node 5.6 on windows.
   // Instead get back array [id, player].
-  for (const entry of playersForIds) {
-    names.push(entry[1].name);
+  for (const player of getActivePlayersInRoom('foo')) {
+    names.push(player.name);
   }
   return names;
 }
 
 function getWerewolfNames() {
   const names = [];
-  for (const entry of playersForIds) {
-    const player = entry[1];
+  for (const player of getActivePlayersInRoom('foo')) {
     if (player.role == Role.Werewolf) {
       names.push(player.name);  
     }
@@ -90,14 +92,15 @@ function getWerewolfNames() {
 
 function assignRoles() {
   const roleSet = [];
-  let maxWerewolves = playersForIds.size < 4 ? 1 : 2;
+  const players = getActivePlayersInRoom('foo');
+  let maxWerewolves = players.length < 4 ? 1 : 2;
   for (let i=0; i<= maxWerewolves; i++) {
     roleSet.push(Role.Werewolf);
   }
   // Add singleton roles.
   roleSet.push(Role.Seer);
-  const extraCards = playersForIds.size < 4 ? 1 : 3;
-  for (let i = roleSet.length; i < playersForIds.size + extraCards; i++) {
+  const extraCards = players.length < 4 ? 1 : 3;
+  for (let i = roleSet.length; i < players.length + extraCards; i++) {
     // Add roles with multiple people.
     if (getRandomInt(0, 3) == 0) {
       roleSet.push(Role.Villager);      
@@ -105,9 +108,8 @@ function assignRoles() {
       roleSet.push(Role.Riddler);
     }
   }
-  for (const entry of playersForIds) {
-    const id = entry[0];
-    const player = entry[1];
+  for (const player of getActivePlayersInRoom('foo')) {
+    const id = player.id;
     const r = getRandomInt(0, roleSet.length);
     playersForIds.get(id).role = roleSet[r];
     roleSet.splice(r, 1);
@@ -127,9 +129,8 @@ function findPlayerByName(name) {
 
 function countPlayersByRole(role) {
   let numRole = 0;
-  for (const entry of playersForIds) {
-    const id = entry[0];
-    const player = entry[1];
+  for (const player of getActivePlayersInRoom('foo')) {
+    const id = player.id;
     if (role == player.role) {
       numRole += 1;
     }
@@ -138,7 +139,8 @@ function countPlayersByRole(role) {
 }
 
 function getRandomPlayerExceptIds(ids) {
-  const playerIds = Array.from(playersForIds.keys());
+  const players = getActivePlayersInRoom('foo');
+  const playerIds = players.map(p => p.id);
   for (const id of ids) {
     playerIds.splice(playerIds.indexOf(id), 1);    
   }
@@ -201,14 +203,13 @@ io.on('connection', function(client) {
   });
 
   client.on('startGame', (data) => {
-    startGameGoing();
+    setGameGoing(true);
     assignRoles();
     const numVillagers = countPlayersByRole(Role.Villager);
     const werewolves = getWerewolfNames();
-    for (const entry of playersForIds) {
-      const id = entry[0];
-      const player = entry[1];
-      // Clear player in-game variables.
+    for (const player of getActivePlayersInRoom('foo')) {
+      const id = player.id;
+        // Clear player in-game variables.
       playersForIds.get(id).voteFor = '';
       console.log('attempting to send' + player.role + ' to '+ id);
       // Send any extra info with data.
@@ -249,9 +250,8 @@ io.on('connection', function(client) {
   function timesUp() {
     // Calculate who has most votes.
     const voteTallies = new Map();
-    for (const entry of playersForIds) {
-      const id = entry[0];
-      const player = entry[1];
+    for (const player of getActivePlayersInRoom('foo')) {
+      const id = player.id;  
       if (player.voteFor) {
         if (!voteTallies.has(player.voteFor)) {
           voteTallies.set(player.voteFor, 0);
@@ -298,9 +298,8 @@ io.on('connection', function(client) {
       }
     }
     // inform players of result
-    for (const entry of playersForIds) {
-      const id = entry[0];
-      const player = entry[1];
+    for (const player of getActivePlayersInRoom('foo')) {
+      const id = player.id;  
       const won = player.role == Role.Werewolf ?
           !werewolfKilled :
           villagersWon;
@@ -309,7 +308,7 @@ io.on('connection', function(client) {
         killedPlayers: maxNames,
       });
     }
-    isGameGoing = false;
+    setGameGoing(false);
   }
 
   client.on('disconnect', (reason) => {
