@@ -188,6 +188,12 @@ io.on('connection', function(client) {
     playersForIds.get(client.id).name = data.name;
     playersForIds.get(client.id).nameSet = true;
     io.in(room).emit('allPlayersNames', getPlayerNames());
+    if (isGameGoing) {
+      // Don't let them go to start round screen.
+      client.emit('gameInProgress', {
+        isGameGoing: isGameGoing,
+      });
+    }
   });
 
   client.on('viewRole', (data) => {
@@ -288,9 +294,8 @@ io.on('connection', function(client) {
         villagersWon = false;
       } else {
         // check if there were any werewolves
-        for (const entry of playersForIds) {
-          const id = entry[0];
-          const player = entry[1];
+        for (const player of getActivePlayersInRoom('foo')) {
+          const id = player.id;      
           if (player.role == Role.Werewolf) {
             villagersWon = false;
           }
@@ -303,7 +308,7 @@ io.on('connection', function(client) {
       const won = player.role == Role.Werewolf ?
           !werewolfKilled :
           villagersWon;
-      io.in(room).to(id).emit('gameDone', {
+      io.to(id).emit('gameDone', {
         won,
         killedPlayers: maxNames,
       });

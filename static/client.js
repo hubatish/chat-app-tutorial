@@ -9,7 +9,8 @@ var phoneId;
 // Game variables.
 var GameScene = {
   Welcome: 'Welcome', // Starting screen - enter name/lobby.
-  GameInProgress: 'InProgress', // In progress game screen.
+  WaitingForGameEnd: 'WaitingForGameEnd', // Game already in progress - wait for new one.
+  PlayingGame: 'PlayingGame', // In progress game screen.
   GameEnd: 'GameEnd' // Game has ended, show results.
 };
 var curScene = GameScene.Welcome;
@@ -118,12 +119,19 @@ socket.on('clientJoin', function (data) {
   $("#player_list_root").show();
 });
 
+socket.on('gameInProgress', function(data) {
+  // Game is already in progress, don't go to start game root.
+  $('#in_progress_root').show();
+  $("#start_game_root").hide();
+  curScene = GameScene.WaitingForGameEnd;
+});
+
 function setPlayerNamesList(names) {
   allPlayersNames = names;
   $('#player_list').empty();
   for (var name of names) {
     var innerHtml = '<li>' + name;
-    if (curScene == GameScene.GameInProgress) {
+    if (curScene == GameScene.PlayingGame) {
       innerHtml += '<button id="vote_' + name + '">Vote to Lynch</button>';
       if (votedPlayer == name) {
         innerHtml += "Voted For!"
@@ -136,7 +144,7 @@ function setPlayerNamesList(names) {
     }
     innerHtml += '</li>';
     $('#player_list').append(innerHtml);
-    if (curScene == GameScene.GameInProgress) {
+    if (curScene == GameScene.PlayingGame) {
       $('#vote_' + name).click(function (unused) {
         console.log('voted for ' + name);
         votedPlayer = name;
@@ -154,9 +162,10 @@ socket.on('allPlayersNames', function (names) {
 socket.on('startGame', function (data) {
   console.log('game started msg received' + data.role);
   clearNewGameValues();
-  curScene = GameScene.GameInProgress;
+  curScene = GameScene.PlayingGame;
   role = data.role;
   // Clear visible elements.
+  $('#in_progress_root').hide();
   $('#start_game_root').hide();
   $('#end_game').hide();
   $('#villager_root').hide();
