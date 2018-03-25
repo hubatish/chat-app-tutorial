@@ -89,9 +89,6 @@ $(function () {
     $("#name_form").hide();
     $("#name_change_btn").text("Change name from " + name);
     $("#name_change_btn").show();
-    if (curScene == GameScene.Welcome) {
-      $("#start_game_root").show();
-    }
   });
   $("#name_change_btn").click(function () {
     $("#name_form").show();
@@ -119,11 +116,14 @@ socket.on('clientJoin', function (data) {
   $("#player_list_root").show();
 });
 
-socket.on('gameInProgress', function(data) {
-  // Game is already in progress, don't go to start game root.
-  $('#in_progress_root').show();
-  $("#start_game_root").hide();
-  curScene = GameScene.WaitingForGameEnd;
+socket.on('gameStatus', function(data) {
+  if (data.isGameGoing) {
+    // Game is already in progress, don't go to start game root.
+    $('#in_progress_root').show();
+    curScene = GameScene.WaitingForGameEnd;
+  } else {
+    $("#start_game_root").show();
+  }
 });
 
 function setPlayerNamesList(names) {

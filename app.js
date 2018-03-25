@@ -188,12 +188,10 @@ io.on('connection', function(client) {
     playersForIds.get(client.id).name = data.name;
     playersForIds.get(client.id).nameSet = true;
     io.in(room).emit('allPlayersNames', getPlayerNames());
-    if (isGameGoing) {
-      // Don't let them go to start round screen.
-      client.emit('gameInProgress', {
-        isGameGoing: isGameGoing,
-      });
-    }
+    // Don't let them go to start round screen.
+    client.emit('gameStatus', {
+      isGameGoing: isGameGoing,
+    });
   });
 
   client.on('viewRole', (data) => {
