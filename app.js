@@ -8,6 +8,8 @@ var app = express();
 var server = http.createServer(app);  
 var io = socketIo(server);
 
+var players = require('./playerCollection');
+
 app.use(express.static(__dirname + '/node_modules'));
 app.use(express.static(__dirname + '/static'));
 app.get('/', function(req, res,next) {
@@ -15,23 +17,10 @@ app.get('/', function(req, res,next) {
 });
 
 // App logic.
-const Role = {
-  Werewolf: 'Werewolf',
-  Villager: 'Villager',
-  Seer: 'Seer',
-  Riddler: 'Riddler'
-};
-
-const Team = {
-  Villagers: 'Villagers',
-  Werewolves: 'Werewolves'
-};
-
-const teamForRole = new Map();
-teamForRole.set(Role.Werewolf, Team.Werewolves);
-teamForRole.set(Role.Villager, Team.Villagers);
-teamForRole.set(Role.Seer, Team.Villagers);
-teamForRole.set(Role.Riddler, Team.Villagers);
+const roleDefinitions = require('./roleDefinitions');
+const Role = roleDefinitions.Role;
+const Team = roleDefinitions.Team;
+const teamForRole = roleDefinitions.teamForRole;
 
 let playersForIds = new Map();
 let room = 'default';
