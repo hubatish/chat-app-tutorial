@@ -152,6 +152,4 @@ class GameRoom {
   }
 }
 
-module.exports = {
-  GameRoom: GameRoom
-};
+module.exports = GameRoom;

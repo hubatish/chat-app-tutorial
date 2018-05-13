@@ -28,6 +28,4 @@ class LoadingRoom {
   }
 }
 
-module.exports = {
-  LoadingRoom: LoadingRoom
-}
+module.exports = LoadingRoom;

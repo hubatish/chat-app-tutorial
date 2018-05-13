@@ -139,6 +139,4 @@ class PlayerCollection {
   }
 }
 
-module.exports = {
-  PlayerCollection: PlayerCollection
-};
+module.exports = PlayerCollection;
