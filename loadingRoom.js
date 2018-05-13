@@ -9,21 +9,25 @@ class LoadingRoom {
     this.roomManager = roomManager;
   }
   onConnection(client) {
+    const self = this;
     client.on('join', function(data) {
       const id = client.id;
-      this.players.addUnitializedPlayer(id);
-      client.join(this.room);
+      self.players.addUnitializedPlayer(id);
+      client.join(self.room);
       client.emit('clientJoin', {id});
     });
     client.on('nameSet', function(data) {
-      // TODO: Let this happen whenever. But for now only happens in loading room.
-      this.players.modifyPlayer(client.id, player => {
+      // TODO: Let self happen whenever. But for now only happens in loading room.
+      self.players.modifyPlayer(client.id, player => {
         player.name = data.name;
         player.nameSet = true;
         return player;
       });
-      // Shove them out of this room.
-      this.roomManager.movePlayerOutOfLoading(this.players.removePlayer(client.id), client);
+      // Shove them out of self room.
+      const success = self.roomManager.movePlayerOutOfLoading(self.players.getPlayer(client.id), client);
+      if (success) {
+        self.players.removePlayer(client.id);
+      }
     });  
   }
 }

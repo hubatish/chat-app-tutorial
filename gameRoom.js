@@ -9,7 +9,7 @@ class GameRoom {
     this.playersInGame = new PlayerCollection();    
     this.room = 'default';
     this.isGameGoing = false;
-    this.roundTimeout;
+    this.roundTimeout = 0;
     this.io = io;
   }
   setGameGoing(isGoing) {
@@ -22,6 +22,9 @@ class GameRoom {
     this.io.in(this.room).emit('allPlayersNames', this.playersInGame.getPlayerNames());
   }
   addPlayer(player, client) {
+    if (this.isGameGoing) {
+      return false;
+    }
     this.io.in(this.room).emit('allPlayersNames', this.playersInGame.getPlayerNames());
     // Don't let them go to start round screen.
     client.emit('gameStatus', {
@@ -29,25 +32,26 @@ class GameRoom {
     });
   }
   onConnection(client) {
+    const self = this;
     client.on('viewRole', (data) => {
-      const player = this.playersInGame.findPlayerByName(data.name);
+      const player = self.playersInGame.findPlayerByName(data.name);
       if (!player.role) {
         console.log('no player found with name '+data.name);
       }
       client.emit('tellRole', player);
     });
     client.on('voteFor', (data) => {
-      this.playersInGame.modifyPlayer(client.id, player => {
+      self.playersInGame.modifyPlayer(client.id, player => {
         player.voteFor = data.name;
         return player;
       })
     });
     client.on('startGame', (data) => {
-      this.setGameGoing(true);
-      this.playersInGame.assignRoles();
-      const numVillagers = this.playersInGame.countPlayersByRole(Role.Villager);
-      const werewolves = this.playersInGame.getWerewolfNames();
-      this.playersInGame.forEach((id, player) => {
+      self.setGameGoing(true);
+      self.playersInGame.assignRoles();
+      const numVillagers = self.playersInGame.countPlayersByRole(Role.Villager);
+      const werewolves = self.playersInGame.getWerewolfNames();
+      self.playersInGame.forEach((id, player) => {
         // Clear player in-game variables.
         player.voteFor = '';
         console.log('attempting to send' + player.role + ' to '+ id);
@@ -79,12 +83,12 @@ class GameRoom {
         io.to(id).emit('startGame', clientData);
         return player;
       });
-      roundTimeout = setTimeout(timesUp, 1000 * 30);
+      this.roundTimeout = setTimeout(timesUp, 1000 * 30);
     });
   
     client.on('endRound', (data) => {
       timesUp();
-      clearTimeout(roundTimeout);
+      clearTimeout(this.roundTimeout);
     });
   
     function timesUp() {

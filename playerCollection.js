@@ -9,7 +9,7 @@ class PlayerCollection {
     this.playersForId = new Map();
   }
   addUnitializedPlayer(id) {
-    this.playersForIds.set(id, {
+    this.playersForId.set(id, {
       name: 'load' + id.substr(0, 5),
       nameSet: false,
       id,
@@ -19,6 +19,9 @@ class PlayerCollection {
     const player = this.playersForId.get(id);
     this.playersForId.delete(id);
     return player;
+  }
+  getPlayer(id) {
+    return this.playersForId.get(id);
   }
   addPlayer(player) {
     this.playersForId.set(player.id, player);

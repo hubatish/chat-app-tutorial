@@ -25,27 +25,28 @@ const GameRoom = require('./gameRoom');
 const LoadingRoom = require('./loadingRoom');
 
 const roomManager = {
+  /** Try to move a player into a game room. Returns fail or not. */
   movePlayerOutOfLoading: function(player, client) {
-    defaultGameRoom.addPlayer(player, client);
+    return defaultGameRoom.addPlayer(player, client);
   }
 };
 // Player id -> room name.
-const roomNameForId = new Map();
+const roomNamesForId = new Map();
 // Room name -> actual room object.
-const roomForName = new Map();
+const roomsForName = new Map();
 const startLoadingRoom = new LoadingRoom(io, roomManager);
-roomForName.set(startLoadingRoom.room, startLoadingRoom);
+roomsForName.set(startLoadingRoom.room, startLoadingRoom);
 // TODO: Make multiple at some point.
 const defaultGameRoom = new GameRoom(io);
-roomForName.set(defaultGameRoom.room, defaultGameRoom);
+roomsForName.set(defaultGameRoom.room, defaultGameRoom);
 
 io.on('connection', function(client) {
-  for (const room of roomForNames.values()) {
+  for (const room of roomsForName.values()) {
     room.onConnection(client);
   }
 
   client.on('disconnect', (reason) => {
-    playersForIds.delete(client.id);
+    //playersForIds.delete(client.id);
   });
 });
 
