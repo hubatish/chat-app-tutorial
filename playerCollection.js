@@ -1,4 +1,8 @@
 const util = require('./util');
+const enums = require('./roleDefinitions');
+const Role = enums.Role;
+const Team = enums.Team;
+const teamForRole = enums.teamForRole;
 
 class PlayerCollection {
   constructor() {
@@ -21,6 +25,10 @@ class PlayerCollection {
   }
   transferPlayerToOther(id, otherCollection) {
     otherCollection.addPlayer(this.removePlayer(id));
+  }
+  /** playerFunc takes player & returns new/edited player. */
+  modifyPlayer(id, playerFunc) {
+    this.playersForId.set(id, playerFunc(this.playersForId.get(id)));
   }
   /**
    * Do something to each (can edit).

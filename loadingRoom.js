@@ -1,25 +1,33 @@
 const enums = require('./roleDefinitions');
-const allPlayers = require('./allPlayers');
 const PlayerCollection = require('./playerCollection');
 
 class LoadingRoom {
-  constructor() {
-    this.playersForId = new Map();    
+  constructor(io, roomManager) {
+    this.players = new PlayerCollection();
     this.room = 'loading-room-1';
+    this.io = io;
+    this.roomManager = roomManager;
   }
-  setUpIo(socketServer) {
-    this.io = socketServer;
-    io.on('connection', function(client) {
-      client.on('join', function(data) {
-        const id = client.id;
-        playersForIds.set(id, {
-          name: 'load' + id.substr(0, 5),
-          nameSet: false,
-          id,
-        });
-        client.join(room);
-        client.emit('clientJoin', {id});
+  onConnection(client) {
+    client.on('join', function(data) {
+      const id = client.id;
+      this.players.addUnitializedPlayer(id);
+      client.join(this.room);
+      client.emit('clientJoin', {id});
+    });
+    client.on('nameSet', function(data) {
+      // TODO: Let this happen whenever. But for now only happens in loading room.
+      this.players.modifyPlayer(client.id, player => {
+        player.name = data.name;
+        player.nameSet = true;
+        return player;
       });
+      // Shove them out of this room.
+      this.roomManager.movePlayerOutOfLoading(this.players.removePlayer(client.id), client);
     });  
   }
+}
+
+module.exports = {
+  LoadingRoom: LoadingRoom
 }
