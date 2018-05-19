@@ -27,6 +27,9 @@ const LoadingRoom = require('./loadingRoom');
 const roomManager = {
   /** Try to move a player into a game room. Returns fail or not. */
   movePlayerOutOfLoading: function(player, client) {
+    client.leave(client.room);
+    client.room = defaultGameRoom.room;
+    client.join(client.room);
     return defaultGameRoom.addPlayer(player, client);
   }
 };
