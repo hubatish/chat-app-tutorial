@@ -142,7 +142,8 @@ class GameRoom {
         self.io.to(id).emit('startGame', clientData);
         return player;
       });
-      self.roundTimeout = setTimeout(self.timesUp, 1000 * 30);
+      // closure preserves this!!! and/or scope.
+      self.roundTimeout = setTimeout(() => self.timesUp(), 1000 * 30);
     });
   
     client.on('endRound', (data) => {

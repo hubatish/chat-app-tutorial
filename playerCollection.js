@@ -86,8 +86,7 @@ class PlayerCollection {
     return numRole;
   }  
   getRandomPlayerExceptIds(ids) {
-    const players = this.playersForId.values();
-    const playerIds = players.map(p => p.id);
+    const playerIds = Array.from(this.playersForId.keys());
     for (const id of ids) {
       playerIds.splice(playerIds.indexOf(id), 1);    
     }

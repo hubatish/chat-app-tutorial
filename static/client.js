@@ -24,7 +24,7 @@ function clearNewGameValues() {
   killedPlayers = [];
   role = Role.Villager;
   votedPlayer = '';
-  currentCountdown = null;
+  cancelCountdown();
 }
 
 function getPhoneId() {
@@ -43,9 +43,7 @@ function setListEntries(list_root, names) {
   }
 }
 function startCountDown(totalSeconds, onDone) {
-  if (currentCountdown != null) {
-    clearTimeout(currentCountdown);
-  }
+  cancelCountdown();
   var seconds = totalSeconds;
   var countdownText = $('#countdown-text');
   function tickSecond() {
@@ -63,6 +61,12 @@ function startCountDown(totalSeconds, onDone) {
     currentCountdown = setTimeout(tickSecond, 1000);
   }
   tickSecond();
+}
+function cancelCountdown() {
+  if (currentCountdown != null) {
+    clearTimeout(currentCountdown);
+  }
+  currentCountdown = null;
 }
 
 $(function () {
@@ -162,7 +166,7 @@ socket.on('startGame', function (data) {
   $('#role_display_root').show();
   $('#role_text').text('Role: ' + role);
 
-  startCountDown(60, function () {
+  startCountDown(30, function () {
     //console.log('times up!');
   });
   // handle the ability:
