@@ -110,13 +110,15 @@ class GameRoom {
       self.playersInGame.assignRoles();
       const numVillagers = self.playersInGame.countPlayersByRole(Role.Villager);
       const werewolves = self.playersInGame.getWerewolfNames();
+      const roundTime = 30;
       self.playersInGame.forEach((id, player) => {
         // Clear player in-game variables.
         player.voteFor = '';
         console.log('attempting to send' + player.role + ' to '+ id);
         // Send any extra info with data.
         const clientData = {
-          role: player.role
+          role: player.role,
+          roundTime: roundTime,
         };
         switch(player.role) {
           case Role.Villager:
@@ -143,7 +145,7 @@ class GameRoom {
         return player;
       });
       // closure preserves this!!! and/or scope.
-      self.roundTimeout = setTimeout(() => self.timesUp(), 1000 * 30);
+      self.roundTimeout = setTimeout(() => self.timesUp(), 1000 * roundTime);
     });
   
     client.on('endRound', (data) => {

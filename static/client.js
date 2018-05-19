@@ -166,7 +166,7 @@ socket.on('startGame', function (data) {
   $('#role_display_root').show();
   $('#role_text').text('Role: ' + role);
 
-  startCountDown(30, function () {
+  startCountDown(data.roundTime, function () {
     //console.log('times up!');
   });
   // handle the ability:
@@ -196,7 +196,6 @@ socket.on('startGame', function (data) {
 });
 
 socket.on('gameDone', function (data) {
-  console.log(data);
   $('#end_game').show();
   $('#ability_root').hide();
   if (data.won) {
