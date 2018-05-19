@@ -14,12 +14,6 @@ var GameScene = {
   GameEnd: 'GameEnd' // Game has ended, show results.
 };
 var curScene = GameScene.Welcome;
-var Role = {
-  Werewolf: 'Werewolf',
-  Villager: 'Villager',
-  Seer: 'Seer',
-  Riddler: 'Riddler'
-};
 var role = Role.Villager;
 var killedPlayers = [];
 var votedPlayer = '';

@@ -16,8 +16,12 @@ teamForRole.set(Role.Villager, Team.Villagers);
 teamForRole.set(Role.Seer, Team.Villagers);
 teamForRole.set(Role.Riddler, Team.Villagers);
 
-module.exports = {
-  Team,
-  Role,
-  teamForRole,
-};
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+  module.exports = {
+    Team,
+    Role,
+    teamForRole,
+  };
+} else {
+  // could set these on window but they already are!
+}

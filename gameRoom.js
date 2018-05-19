@@ -1,4 +1,4 @@
-const enums = require('./roleDefinitions');
+const enums = require('./static/roleDefinitions');
 const PlayerCollection = require('./playerCollection');
 const Role = enums.Role;
 const Team = enums.Team;
@@ -126,7 +126,7 @@ class GameRoom {
             clientData.werewolves = werewolves;
             break;
           case Role.Seer:
-            let viewedPlayer = getRandomPlayerExcept(id);
+            let viewedPlayer = self.playersInGame.getRandomPlayerExceptId(id);
             if (!viewedPlayer.role) {
               // Just give self if only player.
               viewedPlayer = player;
@@ -134,7 +134,7 @@ class GameRoom {
             clientData.viewedPlayer = viewedPlayer;
             break;
           case Role.Riddler:
-            clientData.riddle = generateRiddle(id);
+            clientData.riddle = self.playersInGame.generateRiddle(id);
             break;
           default:
             break; 
@@ -147,7 +147,7 @@ class GameRoom {
   
     client.on('endRound', (data) => {
       self.timesUp();
-      self.clearTimeout(self.roundTimeout);
+      clearTimeout(self.roundTimeout);
     });
   }
 }

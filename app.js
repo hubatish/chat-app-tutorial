@@ -17,7 +17,7 @@ app.get('/', function(req, res,next) {
 });
 
 // App logic.
-const roleDefinitions = require('./roleDefinitions');
+const roleDefinitions = require('./static/roleDefinitions');
 const Role = roleDefinitions.Role;
 const Team = roleDefinitions.Team;
 const teamForRole = roleDefinitions.teamForRole;

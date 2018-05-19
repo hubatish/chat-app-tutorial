@@ -1,4 +1,4 @@
-const enums = require('./roleDefinitions');
+const enums = require('./static/roleDefinitions');
 const PlayerCollection = require('./playerCollection');
 
 class LoadingRoom {
