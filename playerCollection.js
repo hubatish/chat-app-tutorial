@@ -1,4 +1,4 @@
-const util = require('./util');
+const util = require('./static/util');
 const enums = require('./static/roleDefinitions');
 const Role = enums.Role;
 const Team = enums.Team;
