@@ -83,18 +83,18 @@ class GameRoom {
         io.to(id).emit('startGame', clientData);
         return player;
       });
-      this.roundTimeout = setTimeout(timesUp, 1000 * 30);
+      self.roundTimeout = setTimeout(timesUp, 1000 * 30);
     });
   
     client.on('endRound', (data) => {
-      timesUp();
-      clearTimeout(this.roundTimeout);
+      self.timesUp();
+      self.clearTimeout(this.roundTimeout);
     });
   
     function timesUp() {
       // Calculate who has most votes.
       const voteTallies = new Map();
-      for (const player of getActivePlayersInRoom('foo')) {
+      self.playersInGame.forEach((id, player) => {
         const id = player.id;  
         if (player.voteFor) {
           if (!voteTallies.has(player.voteFor)) {
@@ -102,7 +102,7 @@ class GameRoom {
           }
           voteTallies.set(player.voteFor, voteTallies.get(player.voteFor) + 1);
         }
-      }
+      });
       let maxNames = [];
       let maxVotes = 0;
       for (const entry of voteTallies) {
@@ -120,7 +120,7 @@ class GameRoom {
       let werewolfKilled = false;
       let villagersWon = true;
       for (const name of maxNames) {
-        const player = findPlayerByName(name);
+        const player = self.playersInGame.findPlayerByName(name);
         if (player.role == Role.Werewolf) {
           werewolfKilled = true;
           villagersWon = true;
@@ -132,17 +132,16 @@ class GameRoom {
           villagersWon = false;
         } else {
           // check if there were any werewolves
-          for (const player of getActivePlayersInRoom('foo')) {
+          self.playersInGame.forEach((id, player) => {
             const id = player.id;      
             if (player.role == Role.Werewolf) {
               villagersWon = false;
             }
-          }
+          });
         }
       }
       // inform players of result
-      for (const player of getActivePlayersInRoom('foo')) {
-        const id = player.id;  
+      self.playersInGame.forEach((id, player) => {
         const won = player.role == Role.Werewolf ?
             !werewolfKilled :
             villagersWon;
@@ -150,8 +149,8 @@ class GameRoom {
           won,
           killedPlayers: maxNames,
         });
-      }
-      setGameGoing(false);
+      });
+      self.setGameGoing(false);
     }  
   }
 }
