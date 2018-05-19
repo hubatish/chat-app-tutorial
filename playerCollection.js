@@ -40,7 +40,9 @@ class PlayerCollection {
   forEach(func) {
     for (const entry of this.playersForId.entries()) {
       const newValue = func(entry[0], entry[1]);
-      this.playersForId.set(entry[0], newValue);
+      if (newValue) {
+        this.playersForId.set(entry[0], newValue);        
+      }
     }
   }
   /** Utility functions below! */

@@ -25,11 +25,70 @@ class GameRoom {
     if (this.isGameGoing) {
       return false;
     }
+    this.playersInGame.addPlayer(player);
     this.io.in(this.room).emit('allPlayersNames', this.playersInGame.getPlayerNames());
     // Don't let them go to start round screen.
     client.emit('gameStatus', {
       isGameGoing: this.isGameGoing,
     });
+  }
+  timesUp() {
+    // Calculate who has most votes.
+    const voteTallies = new Map();
+    this.playersInGame.forEach((id, player) => {
+      if (player.voteFor) {
+        if (!voteTallies.has(player.voteFor)) {
+          voteTallies.set(player.voteFor, 0);
+        }
+        voteTallies.set(player.voteFor, voteTallies.get(player.voteFor) + 1);
+      }
+    });
+    let maxNames = [];
+    let maxVotes = 0;
+    for (const entry of voteTallies) {
+      const name = entry[0];
+      const numVotes = entry[1];
+      if (numVotes > maxVotes) {
+        maxNames = [name];
+        maxVotes = numVotes;
+      } else if (numVotes == maxVotes && numVotes > 0) {
+        maxNames.push(name);
+      }
+    }
+    // Was a werewolf killed?
+    let werewolfKilled = false;
+    let villagersWon = true;
+    for (const name of maxNames) {
+      const player = this.playersInGame.findPlayerByName(name);
+      if (player.role == Role.Werewolf) {
+        werewolfKilled = true;
+        villagersWon = true;
+      }
+    }
+    if (!werewolfKilled) {
+      if (maxVotes > 0) {
+        // Someone was killed despite no werewolves killed.
+        villagersWon = false;
+      } else {
+        // check if there were any werewolves
+        this.playersInGame.forEach((id, player) => {
+          if (player.role == Role.Werewolf) {
+            villagersWon = false;
+          }
+        });
+      }
+    }
+    // inform players of result
+    this.playersInGame.forEach((id, player) => {
+      const won = player.role == Role.Werewolf ?
+          !werewolfKilled :
+          villagersWon;
+      this.io.to(id).emit('gameDone', {
+        won,
+        killedPlayers: maxNames,
+      });
+    });
+    this.setGameGoing(false);
   }
   onConnection(client) {
     const self = this;
@@ -80,78 +139,16 @@ class GameRoom {
           default:
             break; 
         }
-        io.to(id).emit('startGame', clientData);
+        self.io.to(id).emit('startGame', clientData);
         return player;
       });
-      self.roundTimeout = setTimeout(timesUp, 1000 * 30);
+      self.roundTimeout = setTimeout(self.timesUp, 1000 * 30);
     });
   
     client.on('endRound', (data) => {
       self.timesUp();
-      self.clearTimeout(this.roundTimeout);
+      self.clearTimeout(self.roundTimeout);
     });
-  
-    function timesUp() {
-      // Calculate who has most votes.
-      const voteTallies = new Map();
-      self.playersInGame.forEach((id, player) => {
-        const id = player.id;  
-        if (player.voteFor) {
-          if (!voteTallies.has(player.voteFor)) {
-            voteTallies.set(player.voteFor, 0);
-          }
-          voteTallies.set(player.voteFor, voteTallies.get(player.voteFor) + 1);
-        }
-      });
-      let maxNames = [];
-      let maxVotes = 0;
-      for (const entry of voteTallies) {
-        const name = entry[0];
-        const numVotes = entry[1];
-        if (numVotes > maxVotes) {
-          maxNames = [name];
-          maxVotes = numVotes;
-        } else if (numVotes == maxVotes && numVotes > 0) {
-          maxNames.push(name);
-        }
-      }
-      console.log('times up! ' + JSON.stringify(maxNames));
-      // Was a werewolf killed?
-      let werewolfKilled = false;
-      let villagersWon = true;
-      for (const name of maxNames) {
-        const player = self.playersInGame.findPlayerByName(name);
-        if (player.role == Role.Werewolf) {
-          werewolfKilled = true;
-          villagersWon = true;
-        }
-      }
-      if (!werewolfKilled) {
-        if (maxVotes > 0) {
-          // Someone was killed despite no werewolves killed.
-          villagersWon = false;
-        } else {
-          // check if there were any werewolves
-          self.playersInGame.forEach((id, player) => {
-            const id = player.id;      
-            if (player.role == Role.Werewolf) {
-              villagersWon = false;
-            }
-          });
-        }
-      }
-      // inform players of result
-      self.playersInGame.forEach((id, player) => {
-        const won = player.role == Role.Werewolf ?
-            !werewolfKilled :
-            villagersWon;
-        io.to(id).emit('gameDone', {
-          won,
-          killedPlayers: maxNames,
-        });
-      });
-      self.setGameGoing(false);
-    }  
   }
 }
 
