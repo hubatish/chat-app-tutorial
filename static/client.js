@@ -119,29 +119,32 @@ socket.on('gameStatus', function(data) {
 function setPlayerNamesList(names) {
   allPlayersNames = names;
   $('#player_list').empty();
-  for (var name of names) {
-    var innerHtml = '<li>' + name;
-    if (curScene == GameScene.PlayingGame) {
-      innerHtml += '<button id="vote_' + name + '">Vote to Lynch</button>';
-      if (votedPlayer == name) {
-        innerHtml += "Voted For!"
+  for (var nameLoop of names) {
+    var wrapper = function() {
+      var name = nameLoop; // wrap name for closure rather than as loop variable.
+      var innerHtml = '<li>' + name;
+      if (curScene == GameScene.PlayingGame) {
+        innerHtml += '<button id="vote_' + name + '">Vote to Lynch</button>';
+        if (votedPlayer == name) {
+          innerHtml += "Voted For!"
+        }
       }
-    }
-    if (curScene == GameScene.GameEnd) {
-      if (killedPlayers.indexOf(name) != -1) {
-        innerHtml += ' Lynched!';
+      if (curScene == GameScene.GameEnd) {
+        if (killedPlayers.indexOf(name) != -1) {
+          innerHtml += ' Lynched!';
+        }
       }
-    }
-    innerHtml += '</li>';
-    $('#player_list').append(innerHtml);
-    if (curScene == GameScene.PlayingGame) {
-      $('#vote_' + name).click(function (unused) {
-        console.log('voted for ' + name);
-        votedPlayer = name;
-        socket.emit('voteFor', { name: name });
-        setPlayerNamesList(allPlayersNames);
-      });
-    }
+      innerHtml += '</li>';
+      $('#player_list').append(innerHtml);
+      if (curScene == GameScene.PlayingGame) {
+        $('#vote_' + name).click(function (unused) {
+          console.log('voted for ' + name);
+          votedPlayer = name;
+          socket.emit('voteFor', { name: name });
+          setPlayerNamesList(allPlayersNames);
+        });
+      }  
+    }();
   }
 }
 

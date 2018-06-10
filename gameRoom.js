@@ -87,6 +87,9 @@ class GameRoom {
         won,
         killedPlayers: maxNames,
       });
+      // clear voteFor.
+      player.voteFor = false;
+      return player;
     });
     this.setGameGoing(false);
   }
@@ -114,7 +117,6 @@ class GameRoom {
       self.playersInGame.forEach((id, player) => {
         // Clear player in-game variables.
         player.voteFor = '';
-        console.log('attempting to send' + player.role + ' to '+ id);
         // Send any extra info with data.
         const clientData = {
           role: player.role,
