@@ -29,6 +29,12 @@ class PlayerCollection {
   transferPlayerToOther(id, otherCollection) {
     otherCollection.addPlayer(this.removePlayer(id));
   }
+  transferAllPlayersToOther(otherCollection) {
+    this.forEach((id, player) => {
+      otherCollection.addPlayer(player);
+    });
+    this.playersForId = new Map();
+  }
   /** playerFunc takes player & returns new/edited player. */
   modifyPlayer(id, playerFunc) {
     this.playersForId.set(id, playerFunc(this.playersForId.get(id)));

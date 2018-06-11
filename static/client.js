@@ -107,7 +107,7 @@ socket.on('clientJoin', function (data) {
 });
 
 socket.on('gameStatus', function(data) {
-  if (data.isGameGoing) {
+  if (data.gameState == GameRoomState.InProgress) {
     // Game is already in progress, don't go to start game root.
     $('#in_progress_root').show();
     curScene = GameScene.WaitingForGameEnd;

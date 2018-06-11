@@ -3,33 +3,38 @@ const PlayerCollection = require('./playerCollection');
 const Role = enums.Role;
 const Team = enums.Team;
 const teamForRole = enums.teamForRole;
+const GameRoomState = enums.GameRoomState;
 
 class GameRoom {
   constructor(io) {
-    this.playersInGame = new PlayerCollection();    
+    // Players who are in the active game.
+    this.playersInGame = new PlayerCollection();
+    // Players who joined game room while game is in progress.
+    this.playersInLobby = new PlayerCollection();
     this.room = 'default';
-    this.isGameGoing = false;
+    this.gameState = GameRoomState.Lobby;
     this.roundTimeout = 0;
     this.io = io;
   }
-  setGameGoing(isGoing) {
-    this.isGameGoing = isGoing;
+  setGameState(gameState) {
+    this.gameState = gameState;
     // Set active status of all players for rest of round.
+    this.playersInLobby.transferAllPlayersToOther(this.playersInGame);
     this.playersInGame.forEach((id, player) => {
-      player.activeInGame = isGoing;
+      player.activeInGame = gameState;
       return player;
     });
     this.io.in(this.room).emit('allPlayersNames', this.playersInGame.getPlayerNames());
   }
   addPlayer(player, client) {
-    if (this.isGameGoing) {
-      return false;
+    if (this.gameState == GameRoomState.InProgress) {
+      this.playersInLobby.addPlayer(player);
+    } else {
+      this.playersInGame.addPlayer(player);
+      this.io.in(this.room).emit('allPlayersNames', this.playersInGame.getPlayerNames());  
     }
-    this.playersInGame.addPlayer(player);
-    this.io.in(this.room).emit('allPlayersNames', this.playersInGame.getPlayerNames());
-    // Don't let them go to start round screen.
     client.emit('gameStatus', {
-      isGameGoing: this.isGameGoing,
+      gameState: this.gameState,
     });
   }
   timesUp() {
@@ -91,7 +96,7 @@ class GameRoom {
       player.voteFor = false;
       return player;
     });
-    this.setGameGoing(false);
+    this.setGameState(GameRoomState.Done);
   }
   onConnection(client) {
     const self = this;
@@ -109,7 +114,7 @@ class GameRoom {
       })
     });
     client.on('startGame', (data) => {
-      self.setGameGoing(true);
+      self.setGameState(GameRoomState.InProgress);
       self.playersInGame.assignRoles();
       const numVillagers = self.playersInGame.countPlayersByRole(Role.Villager);
       const werewolves = self.playersInGame.getWerewolfNames();
