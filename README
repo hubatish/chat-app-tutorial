@@ -5,3 +5,7 @@ To get started, after installing node, run
 npm install
 then
 node app.js
+
+On server, simply:
+forver stop all
+forever start app.js
