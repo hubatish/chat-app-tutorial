@@ -119,12 +119,14 @@ socket.on('gameStatus', function(data) {
 function setPlayerNamesList(names) {
   allPlayersNames = names;
   $('#player_list').empty();
+  var numButtonLoop = 0;
   for (var nameLoop of names) {
     var wrapper = function() {
       var name = nameLoop; // wrap name for closure rather than as loop variable.
+      var numButton = numButtonLoop;
       var innerHtml = '<li>' + name;
       if (curScene == GameScene.PlayingGame) {
-        innerHtml += '<button id="vote_' + name + '">Vote to Lynch</button>';
+        innerHtml += '<button id="vote_' + numButton + '">Vote to Lynch</button>';
         if (votedPlayer == name) {
           innerHtml += "Voted For!"
         }
@@ -137,7 +139,7 @@ function setPlayerNamesList(names) {
       innerHtml += '</li>';
       $('#player_list').append(innerHtml);
       if (curScene == GameScene.PlayingGame) {
-        $('#vote_' + name).click(function (unused) {
+        $('#vote_' + numButton).click(function (unused) {
           console.log('voted for ' + name);
           votedPlayer = name;
           socket.emit('voteFor', { name: name });
@@ -145,6 +147,7 @@ function setPlayerNamesList(names) {
         });
       }  
     }();
+    numButtonLoop += 1;
   }
 }
 
