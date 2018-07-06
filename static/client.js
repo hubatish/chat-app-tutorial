@@ -152,7 +152,6 @@ function setPlayerNamesList(names) {
 }
 
 socket.on('allPlayersNames', function (names) {
-  console.log("got the player names list " + JSON.stringify(names));
   setPlayerNamesList(names);
 });
 

@@ -30,7 +30,6 @@ class RoomsManager {
 
   /** Try to move a player into a game room. Returns fail or not. */
   movePlayerOutOfLoading(client, player) {
-    console.log('moving out of loading' + JSON.stringify(player));
     this.movePlayerIntoRoom(client, player.phoneId, this.defaultGameRoom);
     return this.defaultGameRoom.addPlayer(client, player);
   }
@@ -47,11 +46,9 @@ class RoomsManager {
       // Handle data.phoneId from client and use in order to rejoin in process game.
       const existingRoom = self.roomsForId.get(data.phoneId);
       if (existingRoom) {
-        console.log('adding ' + data.phoneId + ' to existing room');
         self.movePlayerIntoRoom(client, data.phoneId, existingRoom);
         existingRoom.addUnitializedPlayer(client, data.phoneId);
       } else {
-        console.log('adding to loading');
         self.movePlayerIntoRoom(client, data.phoneId, self.startLoadingRoom);
         self.startLoadingRoom.addUnitializedPlayer(client, data.phoneId);
       }
@@ -63,7 +60,6 @@ class RoomsManager {
     }
     client.room = room.roomName;
     client.join(room.roomName);
-    console.log('moving player into room' + room.roomName);
     this.roomsForId.set(phoneId, room);
   }
 }

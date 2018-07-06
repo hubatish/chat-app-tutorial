@@ -27,7 +27,6 @@ class GameRoom {
     this.broadcastNamesInGame();
   }
   broadcastNamesInGame() {
-    console.log('broadcast player names ' + JSON.stringify(this.playersInGame.getPlayerNames()));
     this.io.in(this.roomName).emit('allPlayersNames', this.playersInGame.getPlayerNames());
   }
   addUnitializedPlayer(client, phoneId) {
@@ -47,7 +46,6 @@ class GameRoom {
       this.playersInLobby.addPlayer(player);
     } else {
       this.playersInGame.addPlayer(player);
-      console.log('calling all player names for game list');
       this.broadcastNamesInGame();
     }
     client.emit('gameStatus', {

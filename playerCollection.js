@@ -44,7 +44,7 @@ class PlayerCollection {
     const player = this.playersForId.get(oldId);
     this.playersForId.delete(oldId);
     player.id = newId;
-    this.playersForId.addPlayer(player);
+    this.addPlayer(player);
   }
   /**
    * Do something to each (can edit).
@@ -91,6 +91,7 @@ class PlayerCollection {
   /** Takes a function that should return true iff player is matched. */
   findPlayerMatching(findFunc) {
     for (const entry of this.playersForId) {
+      const player = entry[1];
       if (findFunc(player)) {
         return player;
       }
