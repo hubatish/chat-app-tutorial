@@ -11,7 +11,7 @@ class GameRoom {
     this.playersInGame = new PlayerCollection();
     // Players who joined game room while game is in progress.
     this.playersInLobby = new PlayerCollection();
-    this.room = 'default';
+    this.roomName = 'default';
     this.gameState = GameRoomState.Lobby;
     this.roundTimeout = 0;
     this.io = io;
@@ -24,14 +24,31 @@ class GameRoom {
       player.activeInGame = gameState;
       return player;
     });
-    this.io.in(this.room).emit('allPlayersNames', this.playersInGame.getPlayerNames());
+    this.broadcastNamesInGame();
   }
-  addPlayer(player, client) {
+  broadcastNamesInGame() {
+    console.log('broadcast player names ' + JSON.stringify(this.playersInGame.getPlayerNames()));
+    this.io.in(this.roomName).emit('allPlayersNames', this.playersInGame.getPlayerNames());
+  }
+  addUnitializedPlayer(client, phoneId) {
+    const findPlayerByPhoneId = function(player) {
+      return player.phoneId = phoneId;
+    };
+    let foundPlayer = this.playersInGame.findPlayerMatching(findPlayerByPhoneId);
+    if (!foundPlayer.phoneId) {
+      foundPlayer = this.playersInLobby.findPlayerMatching(findPlayerByPhoneId);
+      return foundPlayer.phoneId === undefined || foundPlayer.phoneId == null;
+    }
+    this.playersInGame.modifyPlayerId(foundPlayer.id, client.id);
+    return true;
+  }
+  addPlayer(client, player) {
     if (this.gameState == GameRoomState.InProgress) {
       this.playersInLobby.addPlayer(player);
     } else {
       this.playersInGame.addPlayer(player);
-      this.io.in(this.room).emit('allPlayersNames', this.playersInGame.getPlayerNames());  
+      console.log('calling all player names for game list');
+      this.broadcastNamesInGame();
     }
     client.emit('gameStatus', {
       gameState: this.gameState,
