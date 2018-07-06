@@ -118,7 +118,7 @@ class GameRoom {
       self.playersInGame.assignRoles();
       const numVillagers = self.playersInGame.countPlayersByRole(Role.Villager);
       const werewolves = self.playersInGame.getWerewolfNames();
-      const roundTime = 30;
+      const roundTime = 120;
       self.playersInGame.forEach((id, player) => {
         // Clear player in-game variables.
         player.voteFor = '';

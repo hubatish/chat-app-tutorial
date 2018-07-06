@@ -18,6 +18,7 @@ class LoadingRoom {
     });
     client.on('nameSet', function(data) {
       // TODO: Let self happen whenever. But for now only happens in loading room.
+      // Handle data.phoneId from client and use in order to rejoin in process game.
       self.players.modifyPlayer(client.id, player => {
         player.name = data.name;
         player.nameSet = true;
