@@ -30,15 +30,40 @@ class GameRoom {
     this.io.in(this.roomName).emit('allPlayersNames', this.playersInGame.getPlayerNames());
   }
   addUnitializedPlayer(client, phoneId) {
+    // Setup server state.
     const findPlayerByPhoneId = function(player) {
       return player.phoneId = phoneId;
     };
+    if (this.gameState == GameRoomState.Lobby) {
+      let lobbyPlayer = this.playersInLobby.findPlayerMatching(findPlayerByPhoneId);
+      if (lobbyPlayer.phoneId) {
+        client.emit('gameStatus', {
+          gameState: this.gameState,
+        });
+        return true;
+      }
+      return false;
+    }
     let foundPlayer = this.playersInGame.findPlayerMatching(findPlayerByPhoneId);
     if (!foundPlayer.phoneId) {
-      foundPlayer = this.playersInLobby.findPlayerMatching(findPlayerByPhoneId);
-      return foundPlayer.phoneId === undefined || foundPlayer.phoneId == null;
+      return false;
     }
     this.playersInGame.modifyPlayerId(foundPlayer.id, client.id);
+    if (this.gameState == GameRoomState.InProgress) {
+      if (foundPlayer.gameStartMessage) {
+        client.emit('startGame', foundPlayer.gameStartMessage);
+      } else {
+        // error!
+        console.log('go to lobby probably');
+      }
+    }
+    if (this.gameState == GameRoomState.Done) {
+      if (foundPlayer.gameDoneMessage) {
+        client.emit('gameDone', foundPlayer.gameDoneMessage);
+      } else {
+        console.log('no game done message, go to lobby');
+      }
+    }
     return true;
   }
   addPlayer(client, player) {
@@ -103,12 +128,14 @@ class GameRoom {
       const won = player.role == Role.Werewolf ?
           !werewolfKilled :
           villagersWon;
-      this.io.to(id).emit('gameDone', {
+      const gameDoneMessage = {
         won,
         killedPlayers: maxNames,
-      });
-      // clear voteFor.
+      };
+      this.io.to(id).emit('gameDone', gameDoneMessage);
+      // setup player for next round & rejoins.
       player.voteFor = false;
+      player.gameDoneMessage = gameDoneMessage;
       return player;
     });
     this.setGameState(GameRoomState.Done);
@@ -164,6 +191,7 @@ class GameRoom {
             break; 
         }
         self.io.to(id).emit('startGame', clientData);
+        player.gameStartMessage = clientData; // store info for reconnect.
         return player;
       });
       // closure preserves this!!! and/or scope.
