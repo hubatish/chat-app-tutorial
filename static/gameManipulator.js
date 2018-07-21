@@ -35,6 +35,7 @@ class GameManipulator {
     this.cancelCountdown();
     var seconds = totalSeconds;
     var countdownText = $('#countdown-text');
+    var self = this;
     function tickSecond() {
       seconds--;
       var minutes = Math.floor(seconds / 60);
@@ -47,7 +48,7 @@ class GameManipulator {
       timer();
     }
     function timer() {
-      this.currentCountdown = setTimeout(tickSecond, 1000);
+      self.currentCountdown = setTimeout(tickSecond, 1000);
     }
     tickSecond();
   }
@@ -59,10 +60,10 @@ class GameManipulator {
   }
 
   onStartGame(data) {
-    console.log('game started msg received' + data.this.role);
+    console.log('game started msg received' + data.role);
     this.clearNewGameValues();
     this.curScene = GameScene.PlayingGame;
-    this.role = data.this.role;
+    this.role = data.role;
     // Clear visible elements.
     $('#in_progress_root').hide();
     $('#start_game_root').hide();
@@ -88,7 +89,7 @@ class GameManipulator {
       case Role.Seer:
         $('#villager_root').show();
         $('#villager_info').text('You have seen that ' + data.viewedPlayer.name +
-          ' is a ' + data.viewedPlayer.this.role);
+          ' is a ' + data.viewedPlayer.role);
         break;
       case Role.Riddler:
         $('#villager_root').show();
@@ -116,7 +117,7 @@ class GameManipulator {
       $('#won_game').hide();
     }
     this.curScene = GameScene.GameEnd;
-    this.killedPlayers = data.this.killedPlayers;
+    this.killedPlayers = data.killedPlayers;
     this.setPlayerNamesList(this.allPlayersNames);
   }
   
@@ -146,20 +147,20 @@ class GameManipulator {
         var name = nameLoop; // wrap name for closure rather than as loop variable.
         var numButton = numButtonLoop;
         var innerHtml = '<li>' + name;
-        if (this.curScene == GameScene.PlayingGame) {
+        if (self.curScene == GameScene.PlayingGame) {
           innerHtml += '<button id="vote_' + numButton + '">Vote to Lynch</button>';
-          if (this.votedPlayer == name) {
+          if (self.votedPlayer == name) {
             innerHtml += "Voted For!"
           }
         }
-        if (this.curScene == GameScene.GameEnd) {
-          if (this.killedPlayers.indexOf(name) != -1) {
+        if (self.curScene == GameScene.GameEnd) {
+          if (self.killedPlayers.indexOf(name) != -1) {
             innerHtml += ' Lynched!';
           }
         }
         innerHtml += '</li>';
         $('#player_list').append(innerHtml);
-        if (this.curScene == GameScene.PlayingGame) {
+        if (self.curScene == GameScene.PlayingGame) {
           $('#vote_' + numButton).click(function (unused) {
             console.log('voted for ' + name);
             self.votedPlayer = name;
