@@ -167,7 +167,7 @@ class GameManipulator {
       $('#in_progress_root').show();
       this.curScene = GameScene.WaitingForGameEnd;
     } else {
-      goToLobby();
+      this.goToLobby();
     }
   }
   
