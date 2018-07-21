@@ -23,12 +23,41 @@ class GameManipulator {
     this.allPlayersNames = [];
   }
 
+  setUpWithSocket(socket) {
+    this.socket = socket;
+    var self = this;
+      // Set up name changing.
+    $('#name_form').submit(function (e) {
+      e.preventDefault();
+      var name = $('#name_input').val();
+      socket.emit('nameSet', { name: name });
+      self.changeName(name);
+      $("#name_change_btn").show();
+    });
+    $("#name_change_btn").click(function () {
+      $("#name_form").show();
+      $("#name_change_btn").hide();
+    });
+    $('.start_game_btn').click(function () {
+      socket.emit('startGame', {});
+      $('#start_game_root').hide();
+    });
+    $('#end_round_btn').click(function () {
+      socket.emit('endRound', {});
+    });
+  }
+
   clearNewGameValues() {
     // set values equal to their starting values.
     this.killedPlayers = [];
     this.role = Role.Villager;
     this.votedPlayer = '';
     this.cancelCountdown();
+  }
+
+  changeName(name) {
+    $("#name_form").hide();
+    $("#name_change_btn").text("Change name from " + name);
   }
   
   startCountDown(totalSeconds, onDone) {
@@ -52,6 +81,7 @@ class GameManipulator {
     }
     tickSecond();
   }
+
   cancelCountdown() {
     if (this.currentCountdown != null) {
       clearTimeout(this.currentCountdown);
@@ -70,7 +100,7 @@ class GameManipulator {
     $('#end_game').hide();
     $('#villager_root').hide();
     $('#werewolf_root').hide();
-  
+
     // Show some things.
     $('#ability_root').show();
     $('#role_display_root').show();
@@ -121,19 +151,23 @@ class GameManipulator {
     this.setPlayerNamesList(this.allPlayersNames);
   }
   
-  onClientJoin(data) {
+  onClientJoin() {
     $("#name_change_root").show();
     $("#loading").hide();
     $("#player_list_root").show();
   }
   
+  goToLobby() {
+    $("#start_game_root").show();
+  }
+
   onGameStatus(data) {
     if (data.gameState == GameRoomState.InProgress) {
       // Game is already in progress, don't go to start game root.
       $('#in_progress_root').show();
       this.curScene = GameScene.WaitingForGameEnd;
     } else {
-      $("#start_game_root").show();
+      goToLobby();
     }
   }
   

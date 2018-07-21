@@ -30,41 +30,38 @@ class GameRoom {
     this.io.in(this.roomName).emit('allPlayersNames', this.playersInGame.getPlayerNames());
   }
   addUnitializedPlayer(client, phoneId) {
-    // Setup server state.
+    // Find a player who was in game but disconnected & rejoined.
     const findPlayerByPhoneId = function(player) {
-      return player.phoneId = phoneId;
+      return player.phoneId == phoneId;
     };
-    if (this.gameState == GameRoomState.Lobby) {
-      let lobbyPlayer = this.playersInLobby.findPlayerMatching(findPlayerByPhoneId);
-      if (lobbyPlayer.phoneId) {
-        client.emit('gameStatus', {
-          gameState: this.gameState,
-        });
-        return true;
-      }
+    let foundPlayer = null;
+    let playerCollection = null;
+    const lobbyPlayer = this.playersInLobby.findPlayerMatching(findPlayerByPhoneId);
+    const inGamePlayer = this.playersInGame.findPlayerMatching(findPlayerByPhoneId);
+    if (lobbyPlayer.phoneId) {
+      foundPlayer = lobbyPlayer;
+      playerCollection = this.playersInLobby;
+    } else if (inGamePlayer.phoneId) {
+      foundPlayer = inGamePlayer;
+      playerCollection = this.playersInGame;
+    }
+    if (foundPlayer) {
+      // Reestablish the reconnecting player's state.
+      playerCollection.modifyPlayer(foundPlayer.id, player => {
+        player.id = client.id;
+        return player;
+      });
+      client.emit('rejoin', {
+        gameState: this.gameState,
+        playerInLobby: (lobbyPlayer.phoneId) ? true : false,
+        names: this.playersInGame.getPlayerNames(),
+        player: foundPlayer,
+      });
+      return true;
+    } else {
+      // Player is new.
       return false;
     }
-    let foundPlayer = this.playersInGame.findPlayerMatching(findPlayerByPhoneId);
-    if (!foundPlayer.phoneId) {
-      return false;
-    }
-    this.playersInGame.modifyPlayerId(foundPlayer.id, client.id);
-    if (this.gameState == GameRoomState.InProgress) {
-      if (foundPlayer.gameStartMessage) {
-        client.emit('startGame', foundPlayer.gameStartMessage);
-      } else {
-        // error!
-        console.log('go to lobby probably');
-      }
-    }
-    if (this.gameState == GameRoomState.Done) {
-      if (foundPlayer.gameDoneMessage) {
-        client.emit('gameDone', foundPlayer.gameDoneMessage);
-      } else {
-        console.log('no game done message, go to lobby');
-      }
-    }
-    return true;
   }
   addPlayer(client, player) {
     if (this.gameState == GameRoomState.InProgress) {

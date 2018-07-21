@@ -17,27 +17,7 @@ function getPhoneId() {
 
 $(function () {
   // document ready.
-  // Set up name changing.
-  $('#name_form').submit(function (e) {
-    e.preventDefault();
-    var name = $('#name_input').val();
-    socket.emit('nameSet', { name: name });
-    $("#name_form").hide();
-    $("#name_change_btn").text("Change name from " + name);
-    $("#name_change_btn").show();
-  });
-  $("#name_change_btn").click(function () {
-    $("#name_form").show();
-    $("#name_change_btn").hide();
-  });
-  $('.start_game_btn').click(function () {
-    socket.emit('startGame', {});
-    $('#start_game_root').hide();
-  });
-  $('#end_round_btn').click(function () {
-    socket.emit('endRound', {});
-  });
-  gameManipulator.socket = socket;
+  gameManipulator.setUpWithSocket(socket);
 });
 
 socket.on('connect', function (data) {
@@ -46,7 +26,29 @@ socket.on('connect', function (data) {
 
 socket.on('clientJoin', function (data) {
   id = data.id;
-  gameManipulator.onClientJoin(data);
+  gameManipulator.onClientJoin();
+});
+
+socket.on('rejoin', function (data) {
+  // Setup the environment from server data.
+  console.log('rejoining! ' + JSON.stringify(data));
+  gameManipulator.onClientJoin();
+  gameManipulator.changeName(data.player.name);
+  gameManipulator.setPlayerNamesList(data.names);
+  if (data.gameState == GameRoomState.Lobby) {
+    gameManipulator.goToLobby();
+  }
+  //gameManipulator.
+/*  gameManipulator.onGameStatus(data.gameStatus);
+  if (this.gameState == GameRoomState.Lobby) {
+    client.emit('gameStatus', {
+      gameState: this.gameState,
+    });
+  } else if (this.gameState == GameRoomState.InProgress) {
+    if (foundPlayer.gameStartMessage) {
+      client.emit('startGame', foundPlayer.gameStartMessage);
+    }
+  }*/
 });
 
 socket.on('gameStatus', function(data) {
