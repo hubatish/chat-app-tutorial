@@ -58,6 +58,9 @@ class PlayerCollection {
       }
     }
   }
+  toString() {
+    return JSON.stringify([...this.playersForId]);
+  }
   /** Utility functions below! */
   getPlayerNames() {
     const names = [];

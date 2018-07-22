@@ -47,10 +47,7 @@ class GameRoom {
     }
     if (foundPlayer) {
       // Reestablish the reconnecting player's state.
-      playerCollection.modifyPlayer(foundPlayer.id, player => {
-        player.id = client.id;
-        return player;
-      });
+      playerCollection.modifyPlayerId(foundPlayer.id, client.id);
       client.emit('rejoin', {
         gameState: this.gameState,
         playerInLobby: (lobbyPlayer.phoneId) ? true : false,
