@@ -36,7 +36,15 @@ socket.on('rejoin', function (data) {
   gameManipulator.changeName(data.player.name);
   gameManipulator.setPlayerNamesList(data.names);
   if (data.gameState == GameRoomState.Lobby) {
-    gameManipulator.goToLobby();
+    gameManipulator.goToGameStart();
+  } else if (data.gameState == GameRoomState.InProgress) {
+    if (data.playerInLobby) {
+      // Player isn't playing!
+      gameManipulator.goToIsInProgress();      
+    } else {
+      console.log('go to ingame goodness' + JSON.stringify(data.player));
+      //gameManipulator.
+    }
   }
   //gameManipulator.
 /*  gameManipulator.onGameStatus(data.gameStatus);

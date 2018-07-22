@@ -157,17 +157,22 @@ class GameManipulator {
     $("#player_list_root").show();
   }
   
-  goToLobby() {
+  goToGameStart() {
     $("#start_game_root").show();
+    this.curScene = GameScene.Welcome;
+  }
+
+  goToIsInProgress() {
+    // Game is already in progress, don't go to start game root.
+    $('#in_progress_root').show();
+    this.curScene = GameScene.WaitingForGameEnd;
   }
 
   onGameStatus(data) {
     if (data.gameState == GameRoomState.InProgress) {
-      // Game is already in progress, don't go to start game root.
-      $('#in_progress_root').show();
-      this.curScene = GameScene.WaitingForGameEnd;
+      this.goToIsInProgress();
     } else {
-      this.goToLobby();
+      this.goToGameStart();
     }
   }
   
