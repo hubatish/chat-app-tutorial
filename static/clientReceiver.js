@@ -20,22 +20,26 @@ $(function () {
   gameManipulator.setUpWithSocket(socket);
 });
 
-socket.on('connect', function (data) {
+var socketsMap = new Map();
+socketsMap.set('connect', function (data) {
   socket.emit('join', { phoneId: getPhoneId() });
 });
 
-socket.on('clientJoin', function (data) {
+socketsMap.set('clientJoin', function (data) {
   id = data.id;
   gameManipulator.onClientJoin();
 });
 
-socket.on('rejoin', function (data) {
+socketsMap.set('rejoin', function (data) {
   // Setup the environment from server data.
   console.log('rejoining! ' + JSON.stringify(data));
   gameManipulator.onClientJoin();
   gameManipulator.changeName(data.player.name);
   gameManipulator.setPlayerNamesList(data.names);
-  if (data.gameState == GameRoomState.Lobby) {
+  for (var message of data.player.messages) {
+    socketsMap.get(message.messageType)(message);
+  }
+/*  if (data.gameState == GameRoomState.Lobby) {
     gameManipulator.goToGameStart();
   } else if (data.gameState == GameRoomState.InProgress) {
     if (data.playerInLobby) {
@@ -43,9 +47,10 @@ socket.on('rejoin', function (data) {
       gameManipulator.goToIsInProgress();      
     } else {
       console.log('go to ingame goodness' + JSON.stringify(data.player));
+      
       //gameManipulator.
     }
-  }
+  }*/
   //gameManipulator.
 /*  gameManipulator.onGameStatus(data.gameStatus);
   if (this.gameState == GameRoomState.Lobby) {
@@ -59,18 +64,22 @@ socket.on('rejoin', function (data) {
   }*/
 });
 
-socket.on('gameStatus', function(data) {
+socketsMap.set('gameStatus', function(data) {
   gameManipulator.onGameStatus(data);
 });
 
-socket.on('allPlayersNames', function (names) {
+socketsMap.set('allPlayersNames', function (names) {
   gameManipulator.setPlayerNamesList(names);
 });
 
-socket.on('startGame', function (data) {
+socketsMap.set('startGame', function (data) {
   gameManipulator.onStartGame(data);
 });
 
-socket.on('gameDone', function (data) {
+socketsMap.set('gameDone', function (data) {
   gameManipulator.onGameDone(data);
 });
+
+for (var socketKey of socketsMap.keys()) {
+  socket.on(socketKey, socketsMap.get(socketKey));
+}

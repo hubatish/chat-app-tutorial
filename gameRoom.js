@@ -67,6 +67,7 @@ class GameRoom {
       this.playersInGame.addPlayer(player);
       this.broadcastNamesInGame();
     }
+    // TODO: Add this to messages.
     client.emit('gameStatus', {
       gameState: this.gameState,
     });
@@ -123,13 +124,14 @@ class GameRoom {
           !werewolfKilled :
           villagersWon;
       const gameDoneMessage = {
+        messageType: 'gameDone',
         won,
         killedPlayers: maxNames,
       };
       this.io.to(id).emit('gameDone', gameDoneMessage);
       // setup player for next round & rejoins.
       player.voteFor = false;
-      player.gameDoneMessage = gameDoneMessage;
+      player.messages = [gameDoneMessage];
       return player;
     });
     this.setGameState(GameRoomState.Done);
@@ -146,6 +148,7 @@ class GameRoom {
     client.on('voteFor', (data) => {
       self.playersInGame.modifyPlayer(client.id, player => {
         player.voteFor = data.name;
+        player.messages.push({messageType: 'voteFor', voteFor: data.name});
         return player;
       })
     });
@@ -158,8 +161,10 @@ class GameRoom {
       self.playersInGame.forEach((id, player) => {
         // Clear player in-game variables.
         player.voteFor = '';
+        player.messages = [];
         // Send any extra info with data.
         const clientData = {
+          messageType: 'startGame',
           role: player.role,
           roundTime: roundTime,
         };
@@ -185,7 +190,7 @@ class GameRoom {
             break; 
         }
         self.io.to(id).emit('startGame', clientData);
-        player.gameStartMessage = clientData; // store info for reconnect.
+        player.messages.push(clientData); // store info for reconnect.
         return player;
       });
       // closure preserves this!!! and/or scope.
