@@ -39,29 +39,6 @@ socketsMap.set('rejoin', function (data) {
   for (var message of data.player.messages) {
     socketsMap.get(message.messageType)(message);
   }
-/*  if (data.gameState == GameRoomState.Lobby) {
-    gameManipulator.goToGameStart();
-  } else if (data.gameState == GameRoomState.InProgress) {
-    if (data.playerInLobby) {
-      // Player isn't playing!
-      gameManipulator.goToIsInProgress();      
-    } else {
-      console.log('go to ingame goodness' + JSON.stringify(data.player));
-      
-      //gameManipulator.
-    }
-  }*/
-  //gameManipulator.
-/*  gameManipulator.onGameStatus(data.gameStatus);
-  if (this.gameState == GameRoomState.Lobby) {
-    client.emit('gameStatus', {
-      gameState: this.gameState,
-    });
-  } else if (this.gameState == GameRoomState.InProgress) {
-    if (foundPlayer.gameStartMessage) {
-      client.emit('startGame', foundPlayer.gameStartMessage);
-    }
-  }*/
 });
 
 socketsMap.set('gameStatus', function(data) {
