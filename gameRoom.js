@@ -68,9 +68,15 @@ class GameRoom {
       this.broadcastNamesInGame();
     }
     // TODO: Add this to messages.
-    client.emit('gameStatus', {
+    var gameStateMessage = {
+      messageType: 'gameStatus',
       gameState: this.gameState,
+    };
+    this.playersInGame.modifyPlayer(client.id, player => {
+      player.messages.push(gameStateMessage);
+      return player;
     });
+    client.emit(gameStateMessage.messageType, gameStateMessage);
   }
   timesUp() {
     // Calculate who has most votes.
@@ -150,7 +156,7 @@ class GameRoom {
         player.voteFor = data.name;
         player.messages.push({messageType: 'voteFor', voteFor: data.name});
         return player;
-      })
+      });
     });
     client.on('startGame', (data) => {
       self.setGameState(GameRoomState.InProgress);
