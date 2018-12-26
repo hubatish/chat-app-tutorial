@@ -35,33 +35,38 @@
   <div hidden class="end_game_reveal">
     <p hidden id="won_game">You won!</p>
     <p hidden id="lose_game">You lost.</p>
+    <p class="role_text">Role: </p>
   </div>
-  <div hidden id="role_display_root">
-    <p id="role_text">Role: </p>          
+  <div hidden class="role_screen_off" class="in_game_reveal">
+    <button id="role_show_btn">Show Role</button>
   </div>
-  <div hidden id="ability_root">
-    <div hidden id="werewolf_root">
+  <div hidden class="role_screen_on" id="ability_root">
+      <p class="role_text">Role: </p>          
+      <div hidden id="werewolf_root">
       <p>The werewolves are:</p>
       <ul class="werewolf_list"></ul>
     </div>
     <div hidden id="villager_root">
       <p id="villager_info"></p>
     </div>
-    <div>
-      <p>Vote before time is out!</p>
-      <p id="countdown-text"></p>
-    </div>
-    <button id="end_round_btn">End Round</button>
-    <p>^ Press only when everyone is ready.</p>
+    <button id="role_hide_btn">Hide Role & Vote</button>
   </div>
   <div hidden class="end_game_reveal">
     <button class="start_game_btn">Restart Round</button>
     <p>^ Press only when everyone is ready.</p>  
   </div>
-  <div hidden id="player_list_root">
-      <p>Players</p>
-      <ul id="player_list"></ul>
+  <div hidden class="role_screen_off" id="player_list_root">
+    <div hidden class="in_game_reveal">
+      <p>Vote before time is out!</p>
+      <p id="countdown-text"></p>
+    </div>
+    <p>Players</p>
+    <ul id="player_list"></ul>
+    <div hidden class="in_game_reveal">
+      <button id="end_round_btn">End Round</button>
+      <p>^ Press only when everyone is ready.</p>
     </div>
   </div>
+</div>
 </body>
 </html>  

@@ -33,7 +33,7 @@ class GameManipulator {
       self.changeName(name);
       $("#name_change_btn").show();
     });
-    $("#name_change_btn").click(function () {
+    $('#name_change_btn').click(function () {
       $("#name_form").show();
       $("#name_change_btn").hide();
     });
@@ -44,6 +44,8 @@ class GameManipulator {
     $('#end_round_btn').click(function () {
       socket.emit('endRound', {});
     });
+    $('#role_show_btn').click(self.showRoleScreen);
+    $('#role_hide_btn').click(self.hideRoleScreen);
   }
 
   clearNewGameValues() {
@@ -87,6 +89,16 @@ class GameManipulator {
     this.currentCountdown = null;
   }
 
+  showRoleScreen() {
+    $(".role_screen_on").show();
+    $(".role_screen_off").hide();
+  }
+
+  hideRoleScreen() {
+    $(".role_screen_on").hide();
+    $(".role_screen_off").show();
+  }
+
   onStartGame(data) {
     console.log('game started msg received' + data.role);
     this.clearNewGameValues();
@@ -100,8 +112,8 @@ class GameManipulator {
     $('#werewolf_root').hide();
 
     // Show some things.
-    $('#ability_root').show();
-    $('#role_display_root').show();
+    $('.in_game_reveal').show();
+    this.showRoleScreen();
     $('#role_text').text('Role: ' + this.role);
   
     this.startCountDown(data.roundTime, function () {
@@ -136,7 +148,8 @@ class GameManipulator {
   
   onGameDone(data) {
     $('.end_game_reveal').show();
-    $('#ability_root').hide();
+    this.hideRoleScreen();
+    $('.in_game_reveal').hide();
     if (data.won) {
       $('#won_game').show();
       $('#lose_game').hide();
