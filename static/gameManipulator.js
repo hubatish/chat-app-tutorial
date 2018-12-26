@@ -42,7 +42,7 @@ class GameManipulator {
     });
     $('.start_game_btn').click(function () {
       socket.emit('startGame', {});
-      $('#start_game_root').hide();
+      $('.start_game_root').hide();
     });
     $('#end_round_btn').click(function () {
       socket.emit('endRound', {});
@@ -109,7 +109,7 @@ class GameManipulator {
     this.role = data.role;
     // Clear visible elements.
     $('#in_progress_root').hide();
-    $('#start_game_root').hide();
+    $('.start_game_root').hide();
     $('.end_game_reveal').hide();
     $('#villager_root').hide();
     $('#werewolf_root').hide();
@@ -171,7 +171,7 @@ class GameManipulator {
   }
   
   goToGameStart() {
-    $("#start_game_root").show();
+    $(".start_game_root").show();
     this.curScene = GameScene.Welcome;
   }
 
