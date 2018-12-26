@@ -114,7 +114,7 @@ class GameManipulator {
     // Show some things.
     $('.in_game_reveal').show();
     this.showRoleScreen();
-    $('#role_text').text('Role: ' + this.role);
+    $('.role_text').text('Role: ' + this.role);
   
     this.startCountDown(data.roundTime, function () {
       //console.log('times up!');
