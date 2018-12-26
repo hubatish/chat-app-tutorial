@@ -97,7 +97,7 @@ class GameManipulator {
     // Clear visible elements.
     $('#in_progress_root').hide();
     $('#start_game_root').hide();
-    $('#end_game').hide();
+    $('.end_game_reveal').hide();
     $('#villager_root').hide();
     $('#werewolf_root').hide();
 
@@ -137,7 +137,7 @@ class GameManipulator {
   }
   
   onGameDone(data) {
-    $('#end_game').show();
+    $('.end_game_reveal').show();
     $('#ability_root').hide();
     if (data.won) {
       $('#won_game').show();
