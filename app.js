@@ -19,5 +19,6 @@ app.get('/', function(req, res,next) {
 const RoomsManager = require('./roomsManager');
 const roomsManager = new RoomsManager(io);
 
-console.log('1.calling for server to start listening from port 4200');
-server.listen(8080);
+let port = 8080;
+console.log('1.calling for server to start listening from port ' + port);
+server.listen(port);
