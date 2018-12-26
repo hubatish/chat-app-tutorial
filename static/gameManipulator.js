@@ -19,7 +19,10 @@ class GameManipulator {
     this.role = Role.Villager;
     this.killedPlayers = [];
     this.currentCountdown = null;
-    this.clientNamesList = new ClientNamesList();
+    var self = this;
+    this.clientNamesList = new ClientNamesList(function(name) {
+      self.socket.emit('voteFor', { name: name });
+    });
   }
 
   setUpWithSocket(socket) {
@@ -51,7 +54,7 @@ class GameManipulator {
   clearNewGameValues() {
     // set values equal to their starting values.
     this.role = Role.Villager;
-    this.clientNamesList = new ClientNamesList();
+    this.clientNamesList.setToDefaults();
     this.cancelCountdown();
   }
 
