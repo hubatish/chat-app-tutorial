@@ -102,6 +102,16 @@ class PlayerCollection {
     }
     return {};
   }
+  getPlayerNamesAndRoles() {
+    let playerAndRoles = [];
+    for (const player of this.playersForId.values()) {
+      playerAndRoles += {
+        name: player.name,
+        role: player.role
+      };
+    }
+    return playerAndRoles;    
+  }
   countPlayersByRole(role) {
     let numRole = 0;
     for (const player of this.playersForId.values()) {
