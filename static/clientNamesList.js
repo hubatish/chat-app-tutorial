@@ -63,7 +63,7 @@ class ClientNamesList {
   }
 
   findRoleByName(name) {
-    for (var nameRole of self.playerNamesAndRoles) {
+    for (var nameRole of this.playerNamesAndRoles) {
       if (nameRole.name == name) {
         return nameRole.role;
       }

@@ -73,6 +73,16 @@ class PlayerCollection {
     }
     return names;
   }
+  getPlayerNamesAndRoles() {
+    let playerAndRoles = [];
+    for (const player of this.playersForId.values()) {
+      playerAndRoles.push({
+        name: player.name,
+        role: player.role
+      });
+    }
+    return playerAndRoles;    
+  }
   getWerewolfNames() {
     const names = [];
     for (const player of this.playersForId.values()) {
@@ -101,16 +111,6 @@ class PlayerCollection {
       }
     }
     return {};
-  }
-  getPlayerNamesAndRoles() {
-    let playerAndRoles = [];
-    for (const player of this.playersForId.values()) {
-      playerAndRoles += {
-        name: player.name,
-        role: player.role
-      };
-    }
-    return playerAndRoles;    
   }
   countPlayersByRole(role) {
     let numRole = 0;
@@ -151,7 +151,7 @@ class PlayerCollection {
     for (let i = roleSet.length; i < players.length + extraCards; i++) {
       // Add roles with multiple people.
       if (util.getRandomInt(0, 3) == 0) {
-        roleSet.push(Role.Villager);      
+        roleSet.push(Role.Villager);
       } else {
         roleSet.push(Role.Riddler);
       }
