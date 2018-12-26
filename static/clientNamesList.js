@@ -1,11 +1,16 @@
 /** Displays the list of player names, with whatever various actions go along with that. */
 class ClientNamesList {
-  constructor() {
+  constructor(onVoteFor) {
     this.curScene = GameScene.Welcome;
+    this.allPlayersNames = [];
+    this.setToDefaults();
+    this.onVoteFor = onVoteFor;
+  }
+
+  setToDefaults() {
     this.killedPlayers = [];
     this.votedPlayer = '';
     this.playerNamesAndRoles = [];
-    this.allPlayersNames = [];
   }
 
   setPlayerNamesList(names) {
@@ -53,7 +58,7 @@ class ClientNamesList {
           $('#vote_' + numButton).click(function (unused) {
             console.log('voted for ' + name);
             self.votedPlayer = name;
-            self.socket.emit('voteFor', { name: name });
+            self.onVoteFor(name);
             self.refreshList();
           });
         }  
