@@ -18,9 +18,8 @@ class GameManipulator {
     this.curScene = GameScene.Welcome;
     this.role = Role.Villager;
     this.killedPlayers = [];
-    this.votedPlayer = '';
-    this.currentCountdown = null;    
-    this.allPlayersNames = [];
+    this.currentCountdown = null;
+    this.clientNameList = new ClientNamesList();
   }
 
   setUpWithSocket(socket) {
@@ -49,9 +48,8 @@ class GameManipulator {
 
   clearNewGameValues() {
     // set values equal to their starting values.
-    this.killedPlayers = [];
     this.role = Role.Villager;
-    this.votedPlayer = '';
+    this.clientNamesList = new ClientNamesList();
     this.cancelCountdown();
   }
 
@@ -133,7 +131,7 @@ class GameManipulator {
       default:
         break;
     }
-    this.setPlayerNamesList(this.allPlayersNames);
+    this.clientNamesList.setGameScene(this.curScene);
   }
   
   onGameDone(data) {
@@ -147,8 +145,7 @@ class GameManipulator {
       $('#won_game').hide();
     }
     this.curScene = GameScene.GameEnd;
-    this.killedPlayers = data.killedPlayers;
-    this.setPlayerNamesList(this.allPlayersNames);
+    this.clientNamesList.listForGameEnd(data.killedPlayers, data.playerNamesAndRoles);
   }
   
   onClientJoin() {
@@ -168,47 +165,15 @@ class GameManipulator {
     this.curScene = GameScene.WaitingForGameEnd;
   }
 
+  setPlayerNamesList(names) {
+    this.clientNamesList.setPlayerNamesList(names);
+  }
+
   onGameStatus(data) {
     if (data.gameState == GameRoomState.InProgress) {
       this.goToIsInProgress();
     } else {
       this.goToGameStart();
-    }
-  }
-  
-  setPlayerNamesList(names) {
-    this.allPlayersNames = names;
-    $('#player_list').empty();
-    var numButtonLoop = 0;
-    var self = this;
-    for (var nameLoop of names) {
-      var wrapper = function() {
-        var name = nameLoop; // wrap name for closure rather than as loop variable.
-        var numButton = numButtonLoop;
-        var innerHtml = '<li>' + name;
-        if (self.curScene == GameScene.PlayingGame) {
-          innerHtml += '<button id="vote_' + numButton + '">Vote to Lynch</button>';
-          if (self.votedPlayer == name) {
-            innerHtml += "Voted For!"
-          }
-        }
-        if (self.curScene == GameScene.GameEnd) {
-          if (self.killedPlayers.indexOf(name) != -1) {
-            innerHtml += ' Lynched!';
-          }
-        }
-        innerHtml += '</li>';
-        $('#player_list').append(innerHtml);
-        if (self.curScene == GameScene.PlayingGame) {
-          $('#vote_' + numButton).click(function (unused) {
-            console.log('voted for ' + name);
-            self.votedPlayer = name;
-            self.socket.emit('voteFor', { name: name });
-            self.setPlayerNamesList(self.allPlayersNames);
-          });
-        }  
-      }();
-      numButtonLoop += 1;
     }
   }
 }

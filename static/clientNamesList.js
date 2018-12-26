@@ -13,8 +13,7 @@ class ClientNameList {
     this.refreshList();
   }
 
-  justSetGameScene(names, scene) {
-    this.allPlayersNames = names;
+  setGameScene(scene) {
     this.curScene = scene;
     this.refreshList();
   }
