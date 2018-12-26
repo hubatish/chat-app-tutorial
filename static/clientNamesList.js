@@ -1,5 +1,5 @@
 /** Displays the list of player names, with whatever various actions go along with that. */
-class ClientNameList {
+class ClientNamesList {
   constructor() {
     this.curScene = GameScene.Welcome;
     this.killedPlayers = [];
@@ -30,7 +30,7 @@ class ClientNameList {
     $('#player_list').empty();
     var numButtonLoop = 0;
     var self = this;
-    for (var nameLoop of names) {
+    for (var nameLoop of self.allPlayersNames) {
       var wrapper = function() {
         var name = nameLoop; // wrap name for closure rather than as loop variable.
         var numButton = numButtonLoop;

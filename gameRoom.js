@@ -124,7 +124,7 @@ class GameRoom {
         });
       }
     }
-    let playerAndRoles = this.playersInGame.getPlayerNamesAndRoles();
+    let playerNamesAndRoles = this.playersInGame.getPlayerNamesAndRoles();
     // inform players of result
     this.playersInGame.forEach((id, player) => {
       const won = player.role == Role.Werewolf ?
@@ -134,7 +134,7 @@ class GameRoom {
         messageType: 'gameDone',
         won,
         killedPlayers: maxNames,
-        playersAndRoles: playerAndRoles,
+        playerNamesAndRoles: playerNamesAndRoles,
       };
       this.io.to(id).emit('gameDone', gameDoneMessage);
       // setup player for next round & rejoins.

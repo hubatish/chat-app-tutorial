@@ -19,7 +19,7 @@ class GameManipulator {
     this.role = Role.Villager;
     this.killedPlayers = [];
     this.currentCountdown = null;
-    this.clientNameList = new ClientNamesList();
+    this.clientNamesList = new ClientNamesList();
   }
 
   setUpWithSocket(socket) {
