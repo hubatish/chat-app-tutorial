@@ -41,23 +41,23 @@
   <div hidden class="role_screen_on" id="ability_root">
       <p class="role_text">Role: </p>
       <div hidden id="werewolf_root">
+      <p>The werewolves win if no werewolf is lynched. Don't get caught!</p>
       <p>The werewolves are:</p>
       <ul class="werewolf_list"></ul>
     </div>
     <div hidden id="villager_root">
+      <p>Villagers win if a werewolf is lynched. Catch one!</p>
       <p id="villager_info"></p>
     </div>
     <button id="role_hide_btn">Hide Role</button>
   </div>
   <div hidden class="" id="player_list_root">
     <p>Players</p>
-    <div hidden class="in_game_reveal">
-        <p>Vote to lynch before time is out - <span id="countdown-text"></span></p>
-      </div>
       <ul id="player_list"></ul>
     <div hidden class="in_game_reveal">
+      <p>Vote to lynch before time is out - <span id="countdown-text"></span></p>
       <button id="end_round_btn">End Round</button>
-      <p>^ Press only when everyone is ready.</p>
+      <p>^ Press to end the round early if everyone has voted.</p>
     </div>
   </div>
   <div hidden class="start_game_root">
