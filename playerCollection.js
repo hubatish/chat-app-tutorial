@@ -141,14 +141,15 @@ class PlayerCollection {
   assignRoles() {
     const roleSet = [];
     const players = this.playersForId.values();
-    let maxWerewolves = players.length < 4 ? 1 : 2;
-    for (let i=0; i<= maxWerewolves; i++) {
+    let numPlayers = this.playersForId.size;
+    let maxWerewolves = numPlayers < 4 ? 1 : 2;
+    for (let i=0; i < maxWerewolves; i++) {
       roleSet.push(Role.Werewolf);
     }
     // Add singleton roles.
     roleSet.push(Role.Seer);
-    const extraCards = players.length < 4 ? 1 : 3;
-    for (let i = roleSet.length; i < players.length + extraCards; i++) {
+    const extraCards = numPlayers < 4 ? 1 : 3;
+    for (let i = roleSet.length; i < numPlayers + extraCards; i++) {
       // Add roles with multiple people.
       if (util.getRandomInt(0, 3) == 0) {
         roleSet.push(Role.Villager);

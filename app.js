@@ -22,3 +22,6 @@ const roomsManager = new RoomsManager(io);
 let port = 8080;
 console.log('1.calling for server to start listening from port ' + port);
 server.listen(port);
+
+//const PlayerCollectionTest = require('./playerCollectionTest');
+
