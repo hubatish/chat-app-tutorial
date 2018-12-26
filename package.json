@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bootstrap": "^4.2.1",
     "express": "^4.16.2",
     "jquery": "^3.2.1",
     "js-cookie": "^2.2.0",

@@ -34,15 +34,15 @@ class GameManipulator {
       var name = $('#name_input').val();
       socket.emit('nameSet', { name: name });
       self.changeName(name);
-      $("#name_change_btn").show();
+      $("#name_change_btn").removeClass('d-none');
     });
     $('#name_change_btn').click(function () {
-      $("#name_form").show();
-      $("#name_change_btn").hide();
+      $("#name_form").removeClass('d-none');
+      $("#name_change_btn").addClass('d-none');
     });
     $('.start_game_btn').click(function () {
       socket.emit('startGame', {});
-      $('.start_game_root').hide();
+      $('.start_game_root').addClass('d-none');
     });
     $('#end_round_btn').click(function () {
       socket.emit('endRound', {});
@@ -59,7 +59,7 @@ class GameManipulator {
   }
 
   changeName(name) {
-    $("#name_form").hide();
+    $("#name_form").addClass('d-none');
     $("#name_change_btn").text("Change name from " + name);
   }
   
@@ -93,13 +93,13 @@ class GameManipulator {
   }
 
   showRoleScreen() {
-    $(".role_screen_on").show();
-    $(".role_screen_off").hide();
+    $(".role_screen_on").removeClass('d-none');
+    $(".role_screen_off").addClass('d-none');
   }
 
   hideRoleScreen() {
-    $(".role_screen_on").hide();
-    $(".role_screen_off").show();
+    $(".role_screen_on").addClass('d-none');
+    $(".role_screen_off").removeClass('d-none');
   }
 
   onStartGame(data) {
@@ -108,14 +108,14 @@ class GameManipulator {
     this.curScene = GameScene.PlayingGame;
     this.role = data.role;
     // Clear visible elements.
-    $('#in_progress_root').hide();
-    $('.start_game_root').hide();
-    $('.end_game_reveal').hide();
-    $('#villager_root').hide();
-    $('#werewolf_root').hide();
+    $('#in_progress_root').addClass('d-none');
+    $('.start_game_root').addClass('d-none');
+    $('.end_game_reveal').addClass('d-none');
+    $('#villager_root').addClass('d-none');
+    $('#werewolf_root').addClass('d-none');
 
     // Show some things.
-    $('.in_game_reveal').show();
+    $('.in_game_reveal').removeClass('d-none');
     this.showRoleScreen();
     $('.role_text').text('Role: ' + this.role);
   
@@ -126,20 +126,20 @@ class GameManipulator {
     // handle the ability:
     switch (this.role) {
       case Role.Werewolf:
-        $('#werewolf_root').show();
+        $('#werewolf_root').removeClass('d-none');
         setListEntries($('.werewolf_list'), data.werewolves);
         break;
       case Role.Seer:
-        $('#villager_root').show();
+        $('#villager_root').removeClass('d-none');
         $('#villager_info').text('You have seen that ' + data.viewedPlayer.name +
           ' is a ' + data.viewedPlayer.role);
         break;
       case Role.Riddler:
-        $('#villager_root').show();
+        $('#villager_root').removeClass('d-none');
         $('#villager_info').text(data.riddle);
         break;
       case Role.Villager:
-        $('#villager_root').show();
+        $('#villager_root').removeClass('d-none');
         $('#villager_info').text('There are ' + data.numVillagers +
           ' villagers.');
         break;
@@ -150,34 +150,34 @@ class GameManipulator {
   }
   
   onGameDone(data) {
-    $('.end_game_reveal').show();
+    $('.end_game_reveal').removeClass('d-none');
     this.hideRoleScreen();
-    $('.in_game_reveal').hide();
+    $('.in_game_reveal').addClass('d-none');
     if (data.won) {
-      $('#won_game').show();
-      $('#lose_game').hide();
+      $('#won_game').removeClass('d-none');
+      $('#lose_game').addClass('d-none');
     } else {
-      $('#lose_game').show();
-      $('#won_game').hide();
+      $('#lose_game').removeClass('d-none');
+      $('#won_game').addClass('d-none');
     }
     this.curScene = GameScene.GameEnd;
     this.clientNamesList.listForGameEnd(data.killedPlayers, data.playerNamesAndRoles);
   }
   
   onClientJoin() {
-    $("#name_change_root").show();
-    $("#loading").hide();
-    $("#player_list_root").show();
+    $("#name_change_root").removeClass('d-none');
+    $("#loading").addClass('d-none');
+    $("#player_list_root").removeClass('d-none');
   }
   
   goToGameStart() {
-    $(".start_game_root").show();
+    $(".start_game_root").removeClass('d-none');
     this.curScene = GameScene.Welcome;
   }
 
   goToIsInProgress() {
     // Game is already in progress, don't go to start game root.
-    $('#in_progress_root').show();
+    $('#in_progress_root').removeClass('d-none');
     this.curScene = GameScene.WaitingForGameEnd;
   }
 

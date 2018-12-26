@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <style src="/bootstrap/css/bootstrap.css"></style>
+  <!--<style src="/bootstrap/css/bootstrap.css"></style>-->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <script src="/jquery/dist/jquery.js"></script>
   <script src="/socket.io/socket.io.js"></script>
@@ -15,57 +16,57 @@
 <body>
   <div col-sm-12 col-lg-6>
   <h1>Play Werewolf!</h1>
-  <div hidden id="name_change_root">
+  <div id="name_change_root" class="d-none">
     <form id="name_form">
       <input id="name_input" type="text">
-      <input type="submit" value="Set Name">
+      <input type="submit" class="btn btn-primary" value="Set Name">
     </form>
-    <button hidden id="name_change_btn">Change your name.</button>
+    <button id="name_change_btn" class="btn btn-primary d-none">Change your name.</button>
   </div>
-  <div hidden id="in_progress_root">
+  <div id="in_progress_root" class="d-none">
     <p>A game is in progress.</p>
     <p>Please wait for it to finish or ask them to restart.</p>
   </div>
-  <div hidden class="start_game_root">
+  <div class="start_game_root d-none">
     <p>After five minutes, vote to kill someone. The werewolves and minion win if a werewolf is not killed.</p>
   </div>
   <p id="loading">Loading..</p>
-  <div hidden class="end_game_reveal">
-    <p hidden id="won_game">You won!</p>
-    <p hidden id="lose_game">You lost.</p>
+  <div class="end_game_reveal d-none">
+    <p class="d-none" id="won_game">You won!</p>
+    <p class="d-none" id="lose_game">You lost.</p>
     <p class="role_text">Role: </p>
   </div>
-  <div hidden class="role_screen_off in_game_reveal">
-    <button id="role_show_btn">Show Role</button>
+  <div class="role_screen_off in_game_reveal d-none">
+    <button id="role_show_btn" class="btn btn-primary">Show Role</button>
   </div>
-  <div hidden class="role_screen_on" id="ability_root">
+  <div class="role_screen_on d-none" id="ability_root">
       <p class="role_text">Role: </p>
-      <div hidden id="werewolf_root">
+      <div class="d-none" id="werewolf_root">
       <p>The werewolves win if no werewolf is lynched. Don't get caught!</p>
       <p>The werewolves are:</p>
       <ul class="werewolf_list"></ul>
     </div>
-    <div hidden id="villager_root">
+    <div class="d-none" id="villager_root">
       <p>Villagers win if a werewolf is lynched. Catch one!</p>
       <p id="villager_info"></p>
     </div>
-    <button id="role_hide_btn">Hide Role</button>
+    <button id="role_hide_btn" class="btn btn-primary">Hide Role</button>
   </div>
-  <div hidden class="" id="player_list_root">
+  <div class="d-none" id="player_list_root">
     <p>Players</p>
       <ul id="player_list"></ul>
-    <div hidden class="in_game_reveal">
+    <div class="in_game_reveal d-none">
       <p>Vote to lynch before time is out - <span id="countdown-text"></span></p>
-      <button id="end_round_btn">End Round</button>
+      <button id="end_round_btn" class="btn btn-primary">End Round</button>
       <p>^ Press to end the round early if everyone has voted.</p>
     </div>
   </div>
-  <div hidden class="start_game_root">
-    <button class="start_game_btn">Start Round</button>
+  <div class="start_game_root d-none">
+    <button class="start_game_btn btn btn-primary">Start Round</button>
     <p>^ Press only when everyone is ready.</p>
   </div>
-  <div hidden class="end_game_reveal">
-    <button class="start_game_btn">Restart Round</button>
+  <div class="end_game_reveal d-none">
+    <button class="start_game_btn btn btn-primary">Restart Round</button>
     <p>^ Press only when everyone is ready.</p>
   </div>  
 </div>

@@ -41,7 +41,7 @@ class ClientNamesList {
         var numButton = numButtonLoop;
         var innerHtml = '<li>' + name;
         if (self.curScene == GameScene.PlayingGame) {
-          innerHtml += '<button id="vote_' + numButton + '">Vote to Lynch</button>';
+          innerHtml += '<button id="vote_' + numButton + '" class="btn btn-primary">Vote to Lynch</button>';
           if (self.votedPlayer == name) {
             innerHtml += "Voted For!"
           }
